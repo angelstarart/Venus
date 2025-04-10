@@ -1,9 +1,13 @@
 import type {SyntheticEvent} from 'react';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
+
+import useDeviceDetection from '../hooks/useDeviceDetection';
 
 const en = new URL('../../pdf/resume_e_May24.pdf', import.meta.url).href;
 const ja = new URL('../../pdf/resume_j_May24.pdf', import.meta.url).href;
+const zi = new URL('../../pdf/resume.zip', import.meta.url).href;
 
 const Tabs = styled.div`
   position: relative;
@@ -28,64 +32,107 @@ const Tabs = styled.div`
   }
 `;
 
+const Download = styled.div `
+  font-size: 20px;
+  text-align: center;
+  margin-top: 200px;
+`
+
 const Resume: React.FunctionComponent = () => {
-  const [active, setActive] = useState<number>(0);
-  const handleClick: (e: SyntheticEvent) => void = (e: SyntheticEvent) => {
-    const index = parseInt((e.target as Element).id, 2);
+  const [active, setActive] = useState<string>('en');
+  const urlParams = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const device = useDeviceDetection();
+
+  const handleClick = async (e: SyntheticEvent): Promise<void> => {
+    const index = (e.target as Element).id;
+    if (index !== urlParams.id) {
+      await navigate(`/resume/${index}`);
+    }
+
     if (index !== active) {
       return setActive(index);
     }
   };
 
+  useEffect(() => {
+    setActive(urlParams.id as string);
+    if (urlParams.id === 'zi') {
+      window.location.replace(zi);
+    }
+    console.log(urlParams)
+  }, [urlParams])
+
+  useEffect(() => {
+    if (device === 'Mobile' || device === 'Tablet') {
+      console.log(urlParams.id)
+      if (urlParams.id === 'en') {
+        window.location.replace(en);
+      } else if (urlParams.id === 'ja') {
+        window.location.replace(ja);
+      }
+    }
+    console.log(device)
+  }, [device])
+
   return (
     <div className={'h100'}>
-      <Tabs className={'tabs'}>
-        <div
-          className={active === 0
-            ? ['tab', 'active'].join(' ')
-            : 'tab'}
-        >
-          <input
-            type="radio"
-            id="0"
-            name="resume"
-            onClick={handleClick}
-          />
-          <label htmlFor="0">english</label>
-        </div>
-        <div
-          className={active === 1
-            ? ['tab', 'active'].join(' ')
-            : 'tab'}>
-          <input
-            type="radio"
-            id="1"
-            name="resume"
-            onClick={handleClick}
-          />
-          <label htmlFor="1">japanese</label>
-        </div>
-      </Tabs>
-      <div style={{height: '100%'}}>
-        {active === 0 ? (
-          <object
-            data={en}
-            type={'application/pdf'}
-            width={'100%'}
-            height={'100%'}
-
-          >
-          </object>
-        ) : (
-          <object
-            data={ja}
-            type={'application/pdf'}
-            width={'100%'}
-            height={'100%'}
-          >
-          </object>
-        )}
-      </div>
+      {
+        active !== 'zi' ?
+          <div className={'h100'}>
+            {
+              device === 'Desktop' &&
+              <>
+                <Tabs className={'tabs'}>
+                  <div
+                    className={active === 'en'
+                      ? ['tab', 'active'].join(' ')
+                      : 'tab'}
+                  >
+                    <input
+                      type="radio"
+                      id="en"
+                      name="resume"
+                      onClick={handleClick}
+                    />
+                    <label htmlFor="en">english</label>
+                  </div>
+                  <div
+                    className={active === 'ja'
+                      ? ['tab', 'active'].join(' ')
+                      : 'tab'}>
+                    <input
+                      type="radio"
+                      id="ja"
+                      name="resume"
+                      onClick={handleClick}
+                    />
+                    <label htmlFor="ja">japanese</label>
+                  </div>
+                </Tabs>
+                <div style={{height: '100%'}}>
+                  {active === 'en' ? (
+                    <iframe
+                      src={en}
+                      width={'100%'}
+                      height={'100%'}
+                    />
+                  ) : (
+                    <iframe
+                      src={ja}
+                      width={'100%'}
+                      height={'100%'}
+                    />
+                  )}
+                </div>
+              </>
+            }
+          </div>
+          :
+          <Download>
+            Resume download complete
+          </Download>
+      }
     </div>
   );
 };
