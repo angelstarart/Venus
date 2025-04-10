@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useMutation} from '@apollo/client';
 import {SIGN_IN_USER} from '../graphql/mutations';
-import style from '../../styles/scss/main.module.scss';
+// import style from '../../styles/scss/main.module.scss';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
@@ -35,9 +35,9 @@ const SignIn = () => {
   }, [error])
 
   return (
-    <section className={style.centering}>
+    <section className={'style.centering'}>
       <h1>Sign In</h1>
-      <div className={style.frame}>
+      <div className={'style.frame'}>
         <form onSubmit={handleSubmit}>
           <input
             type="email"

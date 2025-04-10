@@ -1,5 +1,6 @@
+import type {Router} from 'express';
 import express from 'express';
-const router = express.Router();
+const router: Router = express.Router();
 
 router.post('/', (req, res) => {
     console.log(req);
@@ -12,27 +13,27 @@ router.get('/', (req, res, next) => {
     res.json({message: 'Hello SSL'});
 });
 
-router.post('/oTau1e-8EcNkyw6gQbSzJGn8D3drVWnrrkjyvT1Ya8I', (req, res) => {
+router.post('/rI3mXQIXgI3H_Woj--9kg9qdoBNaL_fd0SuK1-lEUxE', (req, res) => {
     res.send(
-        'oTau1e-8EcNkyw6gQbSzJGn8D3drVWnrrkjyvT1Ya8I.n9vhoVsr9f-p5AVhDGW_-NIPSlTUrf15Jo0eKIxokYI',
+        'rI3mXQIXgI3H_Woj--9kg9qdoBNaL_fd0SuK1-lEUxE.n9vhoVsr9f-p5AVhDGW_-NIPSlTUrf15Jo0eKIxokYI',
     );
 });
 
-router.get('/oTau1e-8EcNkyw6gQbSzJGn8D3drVWnrrkjyvT1Ya8I', (req, res) => {
+router.get('/rI3mXQIXgI3H_Woj--9kg9qdoBNaL_fd0SuK1-lEUxE', (req, res) => {
     res.send(
-        'oTau1e-8EcNkyw6gQbSzJGn8D3drVWnrrkjyvT1Ya8I.n9vhoVsr9f-p5AVhDGW_-NIPSlTUrf15Jo0eKIxokYI',
+        'rI3mXQIXgI3H_Woj--9kg9qdoBNaL_fd0SuK1-lEUxE.n9vhoVsr9f-p5AVhDGW_-NIPSlTUrf15Jo0eKIxokYI',
     );
 });
 
-router.post('/LwiddgnkeGReH-gsi3C6D-5KvQVJzhkBDwWhr1HoB_E', (req, res) => {
+router.post('/44E78UinCpWVXOeYusL8oejheU2iJ-a7yEKe_s4HLJ8', (req, res) => {
     res.send(
-        'LwiddgnkeGReH-gsi3C6D-5KvQVJzhkBDwWhr1HoB_E.n9vhoVsr9f-p5AVhDGW_-NIPSlTUrf15Jo0eKIxokYI',
+        '44E78UinCpWVXOeYusL8oejheU2iJ-a7yEKe_s4HLJ8.n9vhoVsr9f-p5AVhDGW_-NIPSlTUrf15Jo0eKIxokYI',
     );
 });
 
-router.get('/LwiddgnkeGReH-gsi3C6D-5KvQVJzhkBDwWhr1HoB_E', (req, res) => {
+router.get('/44E78UinCpWVXOeYusL8oejheU2iJ-a7yEKe_s4HLJ8', (req, res) => {
     res.send(
-        'LwiddgnkeGReH-gsi3C6D-5KvQVJzhkBDwWhr1HoB_E.n9vhoVsr9f-p5AVhDGW_-NIPSlTUrf15Jo0eKIxokYI',
+        '44E78UinCpWVXOeYusL8oejheU2iJ-a7yEKe_s4HLJ8.n9vhoVsr9f-p5AVhDGW_-NIPSlTUrf15Jo0eKIxokYI',
     );
 });
 
@@ -72,4 +73,5 @@ router.get('/eAhSU1WCytGk_YiU25jvextL56HmRGxLDPsBwQe0CWI', (req, res) => {
     );
 });
 
-export default router;
+export const well = router;
+// export default router;

@@ -29,38 +29,52 @@ export const GENERATE_REGISTRATION = gql`
         }
       }
       url
+      token
     }
   }
 `;
 
-// export const SIGN_IN_USER = gql`
-//   mutation SignInUser($email: String!, $password: String!) {
-//     signInUser(input: { email: $email, password: $password }) {
-//       isAuthenticated
-//     }
-//   }
-// `;
-
-// export const SIGN_OUT_USER = gql`
-//   mutation SignOutUser {
-//     signOutUser {
-//       status
-//     }
-//   }
-// `;
-
 export const VERIFY_REGISTRATION = gql`
-  mutation VerifyRegistration($options: Credential) {
-    verifyRegistration(options: $options) {
+  mutation VerifyRegistration($options: Credential, $token: String!) {
+    verifyRegistration(options: $options, token: $token) {
       verified
     }
   }
 `;
 
+// export const GENERATE_AUTHENTICATION = gql`
+//   mutation GenerateAuthentication($token: String!) {
+//     generateAuthentication(token: $token) {
+//       options {
+//         timeout
+//         allowCredentials {
+//           id
+//           type
+//           transports
+//         }
+//         userVerification
+//         rpID
+//         challenge
+//         extensions {
+//           credProps
+//         }
+//       }
+//     }
+//   }
+// `;
+
 export const CHAT = gql`
   mutation Chat($question: String!) {
     chat(question: $question) {
       answer
+    }
+  }
+`;
+
+export const CREATE_IMAGE = gql`
+  mutation CreateImage($prompt: String!) {
+    createImage(prompt: $prompt) {
+      response
     }
   }
 `;

@@ -6,7 +6,7 @@ import { Sky } from 'three/examples/jsm/objects/Sky';
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader';
 import waterNormals from '../../images/waternormals.jpg';
 import Mandala from '../../images/Mandala.svg';
-import style from '../../styles/scss/main.module.scss';
+// import style from '../../styles/scss/main.module.scss';
 
 const Ocean = () => {
     useEffect(() => {
@@ -142,7 +142,7 @@ const Ocean = () => {
 
     return (
         <>
-            <div id={'reality'} className={style.reality} />
+            <div id={'reality'} className={'style.reality'} />
         </>
     )
 }

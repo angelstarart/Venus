@@ -13,15 +13,7 @@
       }
     },
     "experimental": {
-      "plugins": [
-        [
-          "@swc/plugin-styled-components",
-          {
-            "displayName": true,
-            "ssr": true
-          }
-        ]
-      ]
+      "plugins": []
     },
     "target": "esnext",
     "baseUrl": "."

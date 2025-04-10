@@ -17,13 +17,12 @@ import logger from 'morgan';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
-
 import dotenv from 'dotenv';
 
 import {devConfig} from 'client/config/webpack.dev';
 import typeDefs from './graphql/schema';
 import resolvers from './graphql/resolvers';
-import well from './routes/well-known.ts';
+import {well} from './routes/well-known.ts';
 // import {IUser} from "./models/user";
 
 // interface context {
@@ -32,8 +31,13 @@ import well from './routes/well-known.ts';
 
 dotenv.config({ path: '../../.env' });
 
+interface MyContext {
+  req: Request;
+  res: Response;
+}
+
 const { PORT, NODE_ENV, USER, PASS, DB_PORT, TYPE } = process.env;
-console.log(PORT, NODE_ENV, USER, PASS, DB_PORT, TYPE);
+console.log(PORT, NODE_ENV, USER, PASS, DB_PORT, TYPE, 36);
 const app = express();
 
 const corsOptions = {
@@ -52,6 +56,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors(corsOptions), bodyParser.json());
 app.use('/.well-known/acme-challenge/', well);
+// app.use((req, res, next) => {
+//   console.log(req.originalUrl, 56);
+//   next();
+// })
 
 let ip: string;
 if (TYPE === 'virtual') {
@@ -61,7 +69,7 @@ if (TYPE === 'virtual') {
 }
 
 const url = `mongodb://${USER}:${PASS}@${ip}:${DB_PORT}/${USER}`;
-console.log(url)
+console.log(url, 64)
 
 await mongoose
   .connect(url)
@@ -120,22 +128,39 @@ await apolloServer.start();
 app.use(
   '/graphql',
   expressMiddleware(apolloServer, {
-    context: async ({ req, res }) => ({req, res}),
+    context: async ({ req, res }): Promise<MyContext> => {
+      return {
+        req, res
+      };
+    },
   }),
 );
 
-
 app.get('*', (req: Request, res: Response) => {
-  console.log(req.protocol, 117);
-  console.log(req.hostname, 118);
-  console.log(req.get('host'), 119);
-  // console.log(req.headers, 120);
-  const filename = path.join(compiler.outputPath, 'index.html');
-  compiler.outputFileSystem?.readFile(filename, (err, result) => {
-    res.set('content-type', 'text/html');
-    res.send(result);
-    res.end();
-  });
+  console.log(req.protocol, 131);
+  console.log(req.hostname, 133);
+  console.log(req.get('host'), 134);
+  console.log(req.originalUrl, 135);
+  console.log(req.method, 136)
+  console.log(req.body, 137)
+  console.log(req.originalUrl.includes('cgi-bin'), 138)
+  console.log(req.originalUrl.includes('.env'), 139)
+  console.log(req.originalUrl.includes('php'), 140)
+  console.log(req.originalUrl.includes('wget'), 141)
+
+  if (req.method !== 'HEAD') {
+    if (!req.originalUrl.includes('cgi-bin') && !req.originalUrl.includes('.env') && !req.originalUrl.includes('php') && !req.originalUrl.includes('wget')) {
+      console.log(true)
+      const filename = path.join(compiler.outputPath, 'index.html');
+      compiler.outputFileSystem?.readFile(filename, (err, result) => {
+        console.error(err, 148)
+        console.log(result, 149)
+        res.set('content-type', 'text/html');
+        res.send(result);
+        return;
+      });
+    }
+  }
 });
 
 if (NODE_ENV === 'production') {

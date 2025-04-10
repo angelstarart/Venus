@@ -230,13 +230,15 @@ export default tseslint.config(
     ],
     rules: {
       // '@typescript-eslint/internal/prefer-ast-types-enum': 'off',
-      "react/no-unknown-property": ["error", { ignore: ["css"] }],
+      "react/no-unknown-property": ["error", {
+        ignore: ["css", "args", "attach", "intensity", "position", "object", "transparent", "rotation", "metalness", "roughness"]
+      }],
       'react/jsx-uses-react': 'error',
       'react/jsx-uses-vars': 'error',
       'import/no-default-export': 'off',
       'react/jsx-no-target-blank': 'off',
       'react/no-unescaped-entities': 'off',
-      'react-hooks/exhaustive-deps': 'warn',
+      'react-hooks/exhaustive-deps': 'off',
     },
     settings: {
       react: {
