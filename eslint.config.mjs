@@ -52,6 +52,9 @@ export default tseslint.config(
         // ...globals.commonjs,
         ...globals.es2021,
         ...globals.node,
+        "window": true,
+        "document": true,
+        "navigator": true,
       },
       // ecmaVersion: 'latest',
       // sourceType: 'module',
@@ -231,7 +234,29 @@ export default tseslint.config(
     rules: {
       // '@typescript-eslint/internal/prefer-ast-types-enum': 'off',
       "react/no-unknown-property": ["error", {
-        ignore: ["css", "args", "attach", "intensity", "position", "object", "transparent", "rotation", "metalness", "roughness"]
+        ignore: [
+          "css",
+          "args",
+          "attach",
+          "intensity",
+          "position",
+          "object",
+          "transparent",
+          "rotation",
+          "metalness",
+          "roughness",
+          "map",
+          "side",
+          "geometry",
+          "rotation-x",
+          "toneMapped",
+          "onBeforeRender",
+          "visible",
+          "castShadow",
+          "angle",
+          "penumbra",
+          "distance"
+        ]
       }],
       'react/jsx-uses-react': 'error',
       'react/jsx-uses-vars': 'error',

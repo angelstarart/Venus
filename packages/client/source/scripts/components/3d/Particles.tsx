@@ -6,22 +6,22 @@ import { BufferGeometry, Float32BufferAttribute } from 'three';
 
 const Particles: React.FC = () => {
   const particlesRef = useRef<Points>(null);
-  
+
   const particleCount = 1000;
-  
+
   // Generate particles
   const particles = useMemo(() => {
     const positions = new Float32Array(particleCount * 3);
-    
+
     for (let i = 0; i < particleCount * 3; i += 3) {
       positions[i] = (Math.random() - 0.5) * 50;
       positions[i + 1] = (Math.random() - 0.5) * 50;
       positions[i + 2] = (Math.random() - 0.5) * 50;
     }
-    
+
     const geometry = new BufferGeometry();
     geometry.setAttribute('position', new Float32BufferAttribute(positions, 3));
-    
+
     return geometry;
   }, [particleCount]);
 
@@ -44,5 +44,8 @@ const Particles: React.FC = () => {
     </points>
   );
 };
+
+// Set display name for the component
+Particles.displayName = 'Particles';
 
 export default Particles;

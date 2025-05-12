@@ -20,9 +20,9 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import dotenv from 'dotenv';
 
 import {devConfig} from 'client/config/webpack.dev';
-import typeDefs from './graphql/schema';
-import resolvers from './graphql/resolvers';
-import {well} from './routes/well-known.ts';
+import { typeDefs } from './graphql/schema';
+import { resolvers } from './graphql/resolvers';
+import {well} from './routes/well-known';
 // import {IUser} from "./models/user";
 
 // interface context {
@@ -187,4 +187,3 @@ if (NODE_ENV === 'production') {
   await new Promise<void>((resolve) => httpServer.listen(3000, resolve));
   console.log('Server running on port 3000');
 }
-

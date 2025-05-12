@@ -3,7 +3,6 @@ import type {Algorithm, JwtPayload} from 'jsonwebtoken';
 import jwt from 'jsonwebtoken';
 // import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
-import OpenAI from 'openai';
 import {GoogleGenerativeAI} from "@google/generative-ai";
 import {
   generateRegistrationOptions,
@@ -30,9 +29,9 @@ import type {
   // RegistrationResponseJSON,
 } from '@simplewebauthn/types';
 
-import User from '../models/user';
+import { User } from '../models/user';
 // import Token from '../models/token';
-import Chat from '../models/chat';
+import { Chat } from '../models/chat';
 
 interface env {
   JWT_SECRET: string;
@@ -53,13 +52,9 @@ interface device {
 }
 
 dotenv.config({path: '../../.env'});
-const {JWT_SECRET, OPENAI_API_KEY, GOOGLE_GEN_AI_KEY} = process.env as unknown as env;
+const {JWT_SECRET, GOOGLE_GEN_AI_KEY} = process.env as unknown as env;
 
 const genAI = new GoogleGenerativeAI(GOOGLE_GEN_AI_KEY);
-
-const openai = new OpenAI({
-  apiKey: OPENAI_API_KEY,
-});
 
 const resolvers = {
   Query: {
@@ -181,7 +176,7 @@ const resolvers = {
           // await User.findOneAndUpdate({email: (decoded as decoded).email}, {devices: devices});
         }
 
-      } catch (err) {
+      } catch (err: unknown) {
         console.error(err)
       }
 
@@ -223,9 +218,9 @@ const resolvers = {
         .then((res) => {
           return res.response.text();
         })
-        .catch((err: string) => {
+        .catch((err: unknown) => {
           console.error(err, 227)
-          throw new Error(err);
+          throw new Error(err instanceof Error ? err.message : String(err));
         });
 
       console.log(answer, 231)
@@ -238,28 +233,7 @@ const resolvers = {
         answer: answer,
       };
     },
-    createImage: async (_: unknown, args: { prompt: string }): Promise<object> => {
-      const {prompt} = args;
-      console.log(prompt, 240)
-
-      const response = await openai.images.generate({
-        prompt,
-        n: 1,
-        size: '1024x1024',
-        response_format: 'b64_json',
-      }).then((res) => {
-        console.log(res, 247)
-        return res;
-      }).catch((err: string) => {
-        console.error(err, 250)
-        throw new Error(err);
-      });
-      console.log(response, 253)
-      return {
-        response: response
-      }
-    }
   },
 };
 
-export default resolvers;
+export { resolvers };

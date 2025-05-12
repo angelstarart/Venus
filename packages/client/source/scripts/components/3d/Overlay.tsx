@@ -75,7 +75,7 @@ const ProjectDescription = styled.p`
   max-width: 400px;
   line-height: 1.8;
   transition: all 0.8s ease;
-  margin-left: auto;
+  //margin-left: auto;
 `;
 
 const ProjectDetails = styled.div`

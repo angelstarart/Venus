@@ -93,11 +93,6 @@ const typeDefs = gql`
     id: ID!
     answer: String
   }
-  
-  type CreateImage {
-    id: ID!
-    response: String
-  }
 
   input GetUser {
     email: String!
@@ -142,8 +137,7 @@ const typeDefs = gql`
     verifyRegistration(options: Credential, token: String!): VerifiedResponse!
 #    generateAuthentication(token: String!): GenAuthOpts!
     chat(question: String!): Chat!
-    createImage(prompt: String!): CreateImage!
   }
 `;
 
-export default typeDefs;
+export { typeDefs };

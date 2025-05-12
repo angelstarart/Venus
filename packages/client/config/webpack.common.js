@@ -90,13 +90,13 @@ export const common = {
         loader: 'html-loader',
 
       },
-      // {
-      //   test: /\.(png|jpe?g|gif|ico|svg)$/,
-      //   type: 'asset/resource',
-      //   generator: {
-      //     filename: './images/[name].[ext]'
-      //   },
-      // },
+      {
+        test: /\.(png|jpe?g|gif|ico|svg)$/,
+        type: 'asset/resource',
+        generator: {
+          filename: './images/[name].[ext]'
+        },
+      },
       // {
       //   test: /\.(ttf|eot|woff2?)$/,
       //   type: 'asset/resource',
