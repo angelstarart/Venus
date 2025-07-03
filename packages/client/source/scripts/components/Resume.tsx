@@ -1,12 +1,12 @@
 import type {SyntheticEvent} from 'react';
 import React, {useState, useEffect} from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 
 import useDeviceDetection from '../hooks/useDeviceDetection';
 
-const en = new URL('../../pdf/resume_e_May24.pdf', import.meta.url).href;
-const ja = new URL('../../pdf/resume_j_May24.pdf', import.meta.url).href;
+const en = new URL('../../pdf/resume_e_May2025.pdf', import.meta.url).href;
+const ja = new URL('../../pdf/resume_j_May2025.pdf', import.meta.url).href;
 const zi = new URL('../../pdf/resume.zip', import.meta.url).href;
 
 const Tabs = styled.div`

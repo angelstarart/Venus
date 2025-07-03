@@ -1,6 +1,7 @@
-import {createGlobalStyle} from "styled-components";
+// import {createGlobalStyle} from "styled-components";
+import { css } from "@emotion/react";
 
-const GlobalStyle = createGlobalStyle`
+const GlobalStyle = css`
   html {
     font-size: 100%;
     height: 100%;
@@ -54,7 +55,7 @@ const GlobalStyle = createGlobalStyle`
     height: 100%;
 
     section {
-      &:first-child {
+      &:first-of-type {
         height: 100%;
       }
     }

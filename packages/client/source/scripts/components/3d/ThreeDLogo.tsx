@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import styled from 'styled-components';
+// import styled from 'styled-components';
+// import { css, Global } from "@emotion/react";
+import styled from '@emotion/styled';
 import { Canvas, useLoader, useFrame, useThree, extend } from "@react-three/fiber";
 import { OrbitControls, Center, Sky, useTexture } from "@react-three/drei";
 import * as THREE from 'three';
@@ -7,7 +9,7 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { Water } from 'three/examples/jsm/objects/Water.js';
 
 // Import the FBX model and water normals
-const logoPath = new URL('../../../images/logo.fbx', import.meta.url).href;
+const logoPath = new URL('../../../images/logo_silver.fbx', import.meta.url).href;
 const waternormals = new URL('../../../images/waternormals.jpg', import.meta.url).href;
 
 // Extend Water to make it available as a JSX element
@@ -94,7 +96,7 @@ const FBXModel: React.FC = () => {
     const size = new THREE.Vector3();
     boundingBox.getSize(size);
     const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = 1 / maxDim;
+    const scale = 2 / maxDim;
     fbx.scale.set(scale, scale, scale);
 
     fbx.traverse((child) => {
@@ -109,17 +111,17 @@ const FBXModel: React.FC = () => {
               emissive: 0xcccccc,
               emissiveIntensity: 0.5,
               metalness: 1,
-              roughness: 0.8,
+              roughness: 0,
             });
           }
           // For basic materials or other types
           else {
             child.material = new THREE.MeshStandardMaterial({
               color: 0xffffff,
-              emissive: 0xcccccc,
-              emissiveIntensity: 0.5,
+              emissive: 0xdddddd,
+              emissiveIntensity: 1,
               metalness: 1,
-              roughness: 0.8,
+              roughness: 1,
             });
           }
         }

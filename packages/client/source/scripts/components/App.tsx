@@ -1,5 +1,6 @@
 import React, {useEffect} from 'react';
 import { Route, Routes } from 'react-router-dom';
+import { Global } from "@emotion/react";
 // import history from 'history/browser';
 
 import Home from './Home';
@@ -11,6 +12,7 @@ import ThreeDLogo from "./3d/ThreeDLogo.tsx";
 import Logo from "./3d/Logo.tsx";
 import SkyComponent from './3d/Sky.tsx';
 import Ocean from './3d/Ocean.tsx';
+import KTX2 from './3d/KTX2.tsx';
 import AI from './AI';
 // import Contact from './Contact';
 import Registration from './Registration.tsx';
@@ -44,7 +46,7 @@ const App: React.FunctionComponent = () => {
       {/*<header>*/}
       {/*  <Navigation/>*/}
       {/*</header>*/}
-      <GlobalStyle/>
+      <Global styles={GlobalStyle} />
       <main>
         <GlobalProvider>
           <Routes>
@@ -57,6 +59,8 @@ const App: React.FunctionComponent = () => {
             <Route path={'/sky'} element={<SkyComponent />} />
             <Route path={'/logo'} element={<Logo />} />
             <Route path={'/ocean'} element={<Ocean />} />
+            <Route path={'/ktx2'} element={<KTX2 />} />
+            {/*<Route path={'/panorama'} element={<VideoPanoramaViewer />} />*/}
             <Route path={'/ai'} element={<AI />} />
             {/*<Route path={'/contact'} element={<Contact />} />*/}
             <Route path={'/registration'} element={<Registration />} />
