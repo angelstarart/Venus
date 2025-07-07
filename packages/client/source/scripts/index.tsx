@@ -2,8 +2,13 @@ import React from 'react';
 import {createRoot} from 'react-dom/client';
 import {BrowserRouter} from 'react-router-dom';
 import {ApolloClient, ApolloProvider, InMemoryCache} from '@apollo/client';
-
+import { Authenticator } from '@aws-amplify/ui-react';
+// import '@aws-amplify/ui-react/styles.css';
+import { Amplify } from "aws-amplify";
+import outputs from "../../../../amplify_outputs.json";
 import App from './components/App';
+
+Amplify.configure(outputs);
 
 const root = createRoot(document.getElementById('root') as Element);
 const { NODE_ENV, TYPE } = process.env;
@@ -26,7 +31,9 @@ const client = new ApolloClient({
 root.render(
   <ApolloProvider client={client}>
     <BrowserRouter>
-      <App />
+      <Authenticator>
+        <App />
+      </Authenticator>
     </BrowserRouter>
   </ApolloProvider>,
 );

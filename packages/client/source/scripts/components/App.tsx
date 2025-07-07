@@ -4,7 +4,7 @@ import { Global } from "@emotion/react";
 // import history from 'history/browser';
 
 import Home from './Home';
-import Authentication from './Authentication';
+import Authentication from './Authentication.tsx';
 import Scene from "./3d/Scene.tsx";
 import UltraHDRViewer from './3d/UltraHDRViewer.tsx';
 import UltraHDR from './3d/UltraHDR.tsx';
