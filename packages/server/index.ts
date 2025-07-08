@@ -14,14 +14,15 @@ import MongoStore from 'connect-mongo';
 import path from 'path';
 import fs from 'fs';
 import logger from 'morgan';
-import { ApolloServer } from '@apollo/server';
-import { expressMiddleware } from '@apollo/server/express4';
-import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+// import { ApolloServer } from '@apollo/server';
+// import { expressMiddleware } from '@as-integrations/express5';
+// import { expressMiddleware } from '@apollo/server/express4';
+// import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import dotenv from 'dotenv';
 
 import {devConfig} from 'client/config/webpack.dev';
-import { typeDefs } from './graphql/schema';
-import { resolvers } from './graphql/resolvers';
+// import { typeDefs } from './graphql/schema';
+// import { resolvers } from './graphql/resolvers';
 import {well} from './routes/well-known';
 // import {IUser} from "./models/user";
 
@@ -31,10 +32,10 @@ import {well} from './routes/well-known';
 
 dotenv.config({ path: '../../.env' });
 
-interface MyContext {
-  req: Request;
-  res: Response;
-}
+// interface MyContext {
+//   req: Request;
+//   res: Response;
+// }
 
 const { PORT, NODE_ENV, USER, PASS, DB_PORT, TYPE } = process.env;
 console.log(PORT, NODE_ENV, USER, PASS, DB_PORT, TYPE, 36);
@@ -117,28 +118,28 @@ app.use(
 
 const httpServer = http.createServer(app);
 
-const apolloServer = new ApolloServer<MyContext>({
-  typeDefs,
-  resolvers,
-  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-});
+// const apolloServer = new ApolloServer<MyContext>({
+//   typeDefs,
+//   resolvers,
+//   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+// });
+//
+// await apolloServer.start();
+//
+// app.use(
+//   '/graphql',
+//   expressMiddleware(apolloServer, {
+//     context: async ({ req, res }): Promise<MyContext> => {
+//       // Add a redundant await to satisfy the linter
+//       await Promise.resolve();
+//       return {
+//         req, res
+//       };
+//     },
+//   }),
+// );
 
-await apolloServer.start();
-
-app.use(
-  '/graphql',
-  expressMiddleware(apolloServer, {
-    context: async ({ req, res }): Promise<MyContext> => {
-      // Add a redundant await to satisfy the linter
-      await Promise.resolve();
-      return {
-        req, res
-      };
-    },
-  }),
-);
-
-app.get('*', (req: Request, res: Response) => {
+app.get('/{*splat}', (req: Request, res: Response) => {
   console.log(req.protocol, 131);
   console.log(req.hostname, 133);
   console.log(req.get('host'), 134);
