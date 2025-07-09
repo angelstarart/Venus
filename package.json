@@ -67,6 +67,7 @@
     "build": "yarn workspace client build",
     "server": "PORT=80 NODE_ENV=production yarn workspace server start",
     "dev": "NODE_ENV=development yarn workspace server dev",
-    "virtual": "PORT=3010 TYPE=virtual yarn dev"
+    "virtual": "PORT=3010 TYPE=virtual yarn dev",
+    "amplify:deploy": "npx ampx pipeline-deploy --branch $BRANCH_NAME --app-id $AMPLIFY_APP_ID --debug true"
   }
 }
