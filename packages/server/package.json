@@ -6,7 +6,8 @@
   "scripts": {
     "start": "nodemon --exec node --loader ts-node/esm index.ts  --watch ../client/destination",
     "dev": "nodemon --exec node --loader ts-node/esm ./index.ts",
-    "mail": "node mail.ts"
+    "mail": "node mail.ts",
+    "amplify:deploy": "npx ampx pipeline-deploy --branch $BRANCH_NAME --app-id $AMPLIFY_APP_ID --debug true"
   },
   "dependencies": {
     "@apollo/server": "^4.12.2",
