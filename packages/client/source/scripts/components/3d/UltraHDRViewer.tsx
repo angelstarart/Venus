@@ -5,9 +5,10 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { UltraHDRLoader } from 'three/examples/jsm/loaders/UltraHDRLoader.js';
-import styled from 'styled-components';
+// import styled from 'styled-components';
+import styled from '@emotion/styled';
 
-const texture4k = new URL('../../../images/spruit_sunrise_4k.hdr.jpg', import.meta.url).href;
+const texture4k = new URL('../../../images/equirectangular-highres_00003_.jpg', import.meta.url).href;
 
 // Styled components
 const Container = styled.div`
@@ -95,8 +96,8 @@ function useUltraHDRTexture(resolution: '2k' | '4k', dataType: THREE.TextureData
   useEffect(() => {
     console.log(dataType)
     const loader = new UltraHDRLoader();
-    console.log(loader);
     loader.setDataType(dataType);
+    console.log(loader);
 
     console.log(resolution)
     loader.load(texture4k, (loadedTexture) => {

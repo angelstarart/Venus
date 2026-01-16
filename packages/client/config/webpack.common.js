@@ -97,13 +97,13 @@ export const common = {
           filename: './images/[name].[ext]'
         },
       },
-      // {
-      //   test: /\.(ttf|eot|woff2?)$/,
-      //   type: 'asset/resource',
-      //   generator: {
-      //     filename: './fonts/[name].[ext]'
-      //   }
-      // },
+      {
+        test: /\.(ttf|eot|woff2?)$/,
+        type: 'asset/resource',
+        generator: {
+          filename: './fonts/[name].[ext]'
+        }
+      },
       // {
       //   test: /\.(mp4|ogv|webm)$/,
       //   type: 'asset/resource',

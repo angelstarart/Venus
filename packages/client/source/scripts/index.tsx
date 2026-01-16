@@ -1,14 +1,9 @@
 import React from 'react';
 import {createRoot} from 'react-dom/client';
 import {BrowserRouter} from 'react-router-dom';
-import {ApolloClient, ApolloProvider, InMemoryCache} from '@apollo/client';
-// import { Authenticator } from '@aws-amplify/ui-react';
-// import '@aws-amplify/ui-react/styles.css';
-import { Amplify } from "aws-amplify";
-import outputs from "../../../../amplify_outputs.json";
+import {ApolloClient, InMemoryCache, HttpLink} from '@apollo/client';
+import {ApolloProvider} from "@apollo/client/react";
 import App from './components/App';
-
-Amplify.configure(outputs);
 
 const root = createRoot(document.getElementById('root') as Element);
 const { NODE_ENV, TYPE } = process.env;
@@ -24,16 +19,16 @@ const generateUri = (): string => {
 
 const client = new ApolloClient({
   cache: new InMemoryCache(),
-  uri: generateUri(),
-  credentials: 'include',
+  link: new HttpLink({
+    uri: generateUri(),
+    credentials: 'include',
+  }),
 });
 
 root.render(
   <ApolloProvider client={client}>
     <BrowserRouter>
-      {/*<Authenticator>*/}
-        <App />
-      {/*</Authenticator>*/}
+      <App />
     </BrowserRouter>
   </ApolloProvider>,
 );

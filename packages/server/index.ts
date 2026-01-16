@@ -14,15 +14,14 @@ import MongoStore from 'connect-mongo';
 import path from 'path';
 import fs from 'fs';
 import logger from 'morgan';
-// import { ApolloServer } from '@apollo/server';
-// import { expressMiddleware } from '@as-integrations/express5';
-// import { expressMiddleware } from '@apollo/server/express4';
-// import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { ApolloServer } from '@apollo/server';
+import { expressMiddleware } from '@as-integrations/express5';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import dotenv from 'dotenv';
 
 import {devConfig} from 'client/config/webpack.dev';
-// import { typeDefs } from './graphql/schema';
-// import { resolvers } from './graphql/resolvers';
+import { typeDefs } from './graphql/schema';
+import { resolvers } from './graphql/resolvers';
 import {well} from './routes/well-known';
 // import {IUser} from "./models/user";
 
@@ -32,10 +31,10 @@ import {well} from './routes/well-known';
 
 dotenv.config({ path: '../../.env' });
 
-// interface MyContext {
-//   req: Request;
-//   res: Response;
-// }
+interface MyContext {
+  req: Request;
+  res: Response;
+}
 
 const { PORT, NODE_ENV, USER, PASS, DB_PORT, TYPE } = process.env;
 console.log(PORT, NODE_ENV, USER, PASS, DB_PORT, TYPE, 36);
@@ -57,10 +56,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors(corsOptions), bodyParser.json());
 app.use('/.well-known/acme-challenge/', well);
-// app.use((req, res, next) => {
-//   console.log(req.originalUrl, 56);
-//   next();
-// })
 
 let ip: string;
 if (TYPE === 'virtual') {
@@ -118,26 +113,26 @@ app.use(
 
 const httpServer = http.createServer(app);
 
-// const apolloServer = new ApolloServer<MyContext>({
-//   typeDefs,
-//   resolvers,
-//   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-// });
-//
-// await apolloServer.start();
-//
-// app.use(
-//   '/graphql',
-//   expressMiddleware(apolloServer, {
-//     context: async ({ req, res }): Promise<MyContext> => {
-//       // Add a redundant await to satisfy the linter
-//       await Promise.resolve();
-//       return {
-//         req, res
-//       };
-//     },
-//   }),
-// );
+const apolloServer = new ApolloServer<MyContext>({
+  typeDefs,
+  resolvers,
+  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+});
+
+await apolloServer.start();
+
+app.use(
+  '/graphql',
+  expressMiddleware(apolloServer, {
+    context: async ({ req, res }): Promise<MyContext> => {
+      // Add a redundant await to satisfy the linter
+      await Promise.resolve();
+      return {
+        req, res
+      };
+    },
+  }),
+);
 
 app.get('/{*splat}', (req: Request, res: Response) => {
   console.log(req.protocol, 131);
@@ -150,9 +145,14 @@ app.get('/{*splat}', (req: Request, res: Response) => {
   console.log(req.originalUrl.includes('.env'), 139)
   console.log(req.originalUrl.includes('php'), 140)
   console.log(req.originalUrl.includes('wget'), 141)
+  console.log(req.originalUrl.includes('var'), 153)
 
   if (req.method !== 'HEAD') {
-    if (!req.originalUrl.includes('cgi-bin') && !req.originalUrl.includes('.env') && !req.originalUrl.includes('php') && !req.originalUrl.includes('wget')) {
+    if (!req.originalUrl.includes('cgi-bin') &&
+      !req.originalUrl.includes('.env') &&
+      !req.originalUrl.includes('php') &&
+      !req.originalUrl.includes('wget') &&
+      !req.originalUrl.includes('var')) {
       console.log(true)
       const filename = path.join(compiler.outputPath, 'index.html');
       compiler.outputFileSystem?.readFile(filename, (err, result) => {
@@ -172,13 +172,13 @@ if (NODE_ENV === 'production') {
 
   const credentials = {
     key: fs.readFileSync(
-      '/etc/letsencrypt/live/peacefulstar.art-0001/privkey.pem',
+      '/etc/letsencrypt/live/aestheticharmony.art/privkey.pem',
     ),
     cert: fs.readFileSync(
-      '/etc/letsencrypt/live/peacefulstar.art-0001/fullchain.pem',
+      '/etc/letsencrypt/live/aestheticharmony.art/fullchain.pem',
     ),
     ca: fs.readFileSync(
-      '/etc/letsencrypt/live/peacefulstar.art-0001/chain.pem',
+      '/etc/letsencrypt/live/aestheticharmony.art/chain.pem',
     ),
   };
   const httpsServer = https.createServer(credentials, app);

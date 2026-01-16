@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import type {Dispatch, FC, SetStateAction, SyntheticEvent} from 'react';
-import { useLazyQuery, useMutation } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client/react';
 import { startRegistration } from '@simplewebauthn/browser';
 import type {VerifyRegistrationResponseOpts} from '@simplewebauthn/server';
 import type {PublicKeyCredentialCreationOptionsJSON} from '@simplewebauthn/types';
@@ -116,6 +116,7 @@ const Registration: FC = () => {
       console.log(response)
       setToken(response.generateRegistration.token);
       const genOpts = response.generateRegistration.options;
+      console.log(genOpts)
       const credential = startRegistration(genOpts);
       console.log(credential)
       credential

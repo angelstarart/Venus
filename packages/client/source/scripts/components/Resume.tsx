@@ -5,8 +5,8 @@ import styled from '@emotion/styled';
 
 import useDeviceDetection from '../hooks/useDeviceDetection';
 
-const en = new URL('../../pdf/resume_e_May2025.pdf', import.meta.url).href;
-const ja = new URL('../../pdf/resume_j_May2025.pdf', import.meta.url).href;
+const en = new URL('../../pdf/resume_e_Nov2025.pdf', import.meta.url).href;
+const ja = new URL('../../pdf/resume_j_Nov2025.pdf', import.meta.url).href;
 const zi = new URL('../../pdf/resume.zip', import.meta.url).href;
 
 const Tabs = styled.div`
@@ -39,8 +39,8 @@ const Download = styled.div `
 `
 
 const Resume: React.FunctionComponent = () => {
-  const [active, setActive] = useState<string>('en');
   const urlParams = useParams<{ id: string }>();
+  const [active, setActive] = useState<string>(urlParams.id as string || 'en');
   const navigate = useNavigate();
   const device = useDeviceDetection();
 
@@ -56,7 +56,6 @@ const Resume: React.FunctionComponent = () => {
   };
 
   useEffect(() => {
-    setActive(urlParams.id as string);
     if (urlParams.id === 'zi') {
       window.location.replace(zi);
     }

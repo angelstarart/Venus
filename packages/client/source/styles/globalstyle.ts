@@ -2,6 +2,14 @@
 import { css } from "@emotion/react";
 
 const GlobalStyle = css`
+  @font-face {
+    font-family: 'SFProDisplay-Bold';
+    src: url("../fonts/eot/SFProDisplay-Bold.eot") format('eot'),
+    url("../fonts/ttf/SFProDisplay-Bold.ttf") format('ttf'),
+    url("../fonts/woff/SFProDisplay-Bold.woff") format('woff'),
+    url("../fonts/woff2/SFProDisplay-Bold.woff2") format('woff2')
+  }
+
   html {
     font-size: 100%;
     height: 100%;
@@ -33,24 +41,24 @@ const GlobalStyle = css`
     margin: 0;
     padding: 0;
   }
-  
+
   body {
     color: white;
     font-style: normal;
     font-weight: normal;
     background-color: black;
     font-family:
-        "Myriad Set Pro",
-        "Myriad Pro",
-        "Lucida Grande",
-        "Helvetica Neue",
-        "Helvetica",
-        "Arial",
-        "Verdana",
-        sans-serif;
+    //"Myriad Set Pro",
+    //"Myriad Pro",
+    "Lucida Grande",
+    "Helvetica Neue",
+    "Helvetica",
+    "Arial",
+    "Verdana",
+    sans-serif;
     height: 100%;
   }
-  
+
   main {
     height: 100%;
 
@@ -97,7 +105,7 @@ const GlobalStyle = css`
     justify-content: center;
     flex-direction: column;
   }
-  
+
   .h100 {
     height: 100%;
   }
@@ -108,9 +116,11 @@ const GlobalStyle = css`
     margin: 20px;
     min-width: 500px;
     text-align: center;
+
     form {
       display: inline-table;
     }
+
     .answer {
       min-height: 60px;
       background-color: #9c9c9c;
@@ -124,6 +134,7 @@ const GlobalStyle = css`
     border: none;
     outline: none;
     box-sizing: border-box;
+
     &[type="text"],
     &[type="email"],
     &[type="password"] {
@@ -133,10 +144,12 @@ const GlobalStyle = css`
       padding: 0 10px;
       margin: 5px;
       display: block;
+
       &:focus {
         border: 2px solid #9c9c9c;
       }
     }
+
     &::placeholder {
       color: #e0e0e0;
     }

@@ -9,3 +9,4 @@ node_modules
 /etc/
 /data/
 /.env
+/packages/server/.swc/

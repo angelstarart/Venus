@@ -1,8 +1,8 @@
 import React from 'react';
 import type {FC} from "react";
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 
-const imgUrl = new URL('../../images/PeacefulStar.jpg', import.meta.url).href;
+const imgUrl = new URL("../../images/angelstar_ep1.jpg", import.meta.url).href;
 
 const Full = styled.div`
   background: url(${imgUrl}) center/cover no-repeat;

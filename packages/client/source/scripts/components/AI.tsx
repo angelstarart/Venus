@@ -1,15 +1,18 @@
 import type {FC} from 'react';
 import React, { useState } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import { CHAT } from '../graphql/mutations';
+
+type ChatData = { chat: { answer: string } };
+type ChatVars = { question: string };
 
 const AI: FC = () => {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const [chat] = useMutation(CHAT, {
-    onCompleted: (res: {chat: {answer: string}}) => {
+  const [chat] = useMutation<ChatData, ChatVars>(CHAT, {
+    onCompleted: (res) => {
       if (res.chat.answer) {
         setLoading(false);
         setAnswer(res.chat.answer);

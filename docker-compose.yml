@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: OS
+      target: os
       args:
         user: $USER
         pass: $PASS
@@ -26,7 +26,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: Web
+      target: web
       args:
         user: $USER
         pass: $PASS

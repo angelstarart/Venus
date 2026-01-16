@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-// import styled from 'styled-components';
 // import { css, Global } from "@emotion/react";
 import styled from '@emotion/styled';
 import { Canvas, useLoader, useFrame, useThree, extend } from "@react-three/fiber";
@@ -118,10 +117,10 @@ const FBXModel: React.FC = () => {
           else {
             child.material = new THREE.MeshStandardMaterial({
               color: 0xffffff,
-              emissive: 0xdddddd,
+              emissive: 0xaaaaaa,
               emissiveIntensity: 1,
-              metalness: 1,
-              roughness: 1,
+              metalness: 0,
+              roughness: 0,
             });
           }
         }

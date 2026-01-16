@@ -23,16 +23,10 @@ const initialState = {
 const reducer = (state: State, action: Action): State => {
   console.log(state)
   console.log(action)
-  switch (action.type) {
-    case 'SetToken':
-      return {
-        ...state,
-        token: action.payload.token,
-      };
-
-    default:
-      return state;
-  }
+  return {
+    ...state,
+    token: action.payload.token,
+  };
 };
 
 const GlobalContext = createContext<{state: State, dispatch: Dispatch<Action>}>(

@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 
 // Import the FBX model
-const logoPath = new URL('../../../images/logo.fbx', import.meta.url).href;
+const logoPath = new URL('../../../images/logo1024.fbx', import.meta.url).href;
 
 // Styled component for full-screen container
 const FullScreenContainer = styled.div`

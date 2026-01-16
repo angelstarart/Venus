@@ -71,10 +71,10 @@ export const CHAT = gql`
   }
 `;
 
-export const CREATE_IMAGE = gql`
-  mutation CreateImage($prompt: String!) {
-    createImage(prompt: $prompt) {
-      response
-    }
-  }
-`;
+// export const CREATE_IMAGE = gql`
+//   mutation CreateImage($prompt: String!) {
+//     createImage(prompt: $prompt) {
+//       response
+//     }
+//   }
+// `;

@@ -255,7 +255,12 @@ export default tseslint.config(
           "castShadow",
           "angle",
           "penumbra",
-          "distance"
+          "distance",
+          "vertexShader",
+          "fragmentShader",
+          "uniforms",
+          "shadow-mapSize-width",
+          "shadow-mapSize-height"
         ]
       }],
       'react/jsx-uses-react': 'error',
