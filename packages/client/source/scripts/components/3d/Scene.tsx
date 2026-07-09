@@ -6,6 +6,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import styled from 'styled-components';
 import Cards from './Cards';
+import Home from '../Home';
 // import Particles from './Particles';
 import { projects } from '../../data/projects';
 // import Overlay from './Overlay';
@@ -96,11 +97,12 @@ const Scene: React.FC = (): JSX.Element => {
 
   return (
     <SceneContainer ref={containerRef}>
+      <Home/>
       <Canvas
         camera={{ position: [0, 0, 12], fov: 70 }}
         dpr={[1, 2]}
       >
-        <color attach="background" args={[0xf5f0f5]} />
+        {/*<color attach="background" args={[0xf5f0f5]} />*/}
 
         <ambientLight intensity={0.4} />
         <directionalLight position={[10, 10, 10]} intensity={0.8} color={0xfcf0f0} />

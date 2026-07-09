@@ -1,28 +1,28 @@
 services:
-  os:
-    container_name: almaLinux
-    platform: linux/amd64
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: os
-      args:
-        user: $USER
-        pass: $PASS
-    privileged: true
-    restart: always
-    env_file: ./.env
-    ports:
-#      - "53:53"
-      - "8008:8008"
-    depends_on:
-      - web
-    networks:
-      - os-web
+#  os:
+#    container_name: almaLinux
+#    platform: linux/amd64
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#      target: os
+#      args:
+#        user: $USER
+#        pass: $PASS
+#    privileged: true
+#    restart: always
+#    env_file: ./.env
+#    ports:
+##      - "53:53"
+#      - "8008:8008"
+#    depends_on:
+#      - web
+#    networks:
+#      - os-web
 
   web:
     container_name: node
-    platform: linux/amd64
+#    platform: linux/amd64
     build:
       context: .
       dockerfile: Dockerfile
@@ -34,18 +34,31 @@ services:
     restart: always
     env_file: ./.env
     ports:
-      - "3010:3000"
+      - "80:80"
+      - "443:443"
     volumes:
-      -  ./packages:/usr/src/app/packages
+      - ./packages:/usr/src/app/packages
+      - certbot-www:/var/www/certbot
+      - certbot-conf:/etc/letsencrypt
     depends_on:
       - db
     networks:
       - web-db
-      - os-web
+#      - os-web
+
+  certbot:
+    image: certbot/certbot
+    # platform: linux/arm64 # Optional, Docker will pick native by default
+    restart: unless-stopped
+    volumes:
+      - certbot-www:/var/www/certbot
+      - certbot-conf:/etc/letsencrypt
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
   db:
     container_name: mongodb
     image: mongo:latest
+    # platform: linux/arm64 # Optional
     restart: always
     env_file: ./.env
     environment:
@@ -53,7 +66,7 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=$PASS
       - MONGO_INITDB_DATABASE=$USER
     ports:
-      - '6000:27017'
+      - '27017:27017'
     expose:
       - 27017
     volumes:
@@ -66,7 +79,9 @@ services:
 volumes:
   mongodb:
   redis:
+  certbot-www:
+  certbot-conf:
 
 networks:
   web-db:
-  os-web:
+#  os-web:

@@ -20,7 +20,7 @@ const Cards: React.FC<CardsProps> = ({ projects }) => {
       const z = Math.sin(angle) * radius;
       const rotation = (-angle + Math.PI) / 2;
 
-      console.log(x)
+      // console.log(x)
       
       return {
         project,
@@ -35,7 +35,7 @@ const Cards: React.FC<CardsProps> = ({ projects }) => {
   useFrame(({ clock }) => {
     const time = clock.getElapsedTime();
 
-    console.log(cards)
+    // console.log(cards)
     
     cards.forEach((_card, index) => {
       if (!groupRef.current) {return;}
@@ -49,7 +49,7 @@ const Cards: React.FC<CardsProps> = ({ projects }) => {
   });
 
   useEffect(() => {
-    console.log(cards)
+    // console.log(cards)
   }, [cards]);
 
   return (

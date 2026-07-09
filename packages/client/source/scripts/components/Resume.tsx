@@ -5,8 +5,8 @@ import styled from '@emotion/styled';
 
 import useDeviceDetection from '../hooks/useDeviceDetection';
 
-const en = new URL('../../pdf/resume_e_Nov2025.pdf', import.meta.url).href;
-const ja = new URL('../../pdf/resume_j_Nov2025.pdf', import.meta.url).href;
+const en = new URL('../../pdf/resume_e_Jun26.pdf', import.meta.url).href;
+const ja = new URL('../../pdf/resume_j_Jun26.pdf', import.meta.url).href;
 const zi = new URL('../../pdf/resume.zip', import.meta.url).href;
 
 const Tabs = styled.div`

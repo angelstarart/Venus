@@ -34,16 +34,12 @@ const App: React.FunctionComponent = () => {
   //     console.log(action, location.pathname, location.state);
   // });
   // unlisten();
-  useEffect(() => {
-    console.log(window.location.host)
-    if (window.location.host ==='angelstar.art') {
-      document.title = "Angel Star";
-    } else if (window.location.host ==='aestheticharmony.art') {
-      document.title = "Aesthetic Harmony";
-    } else if (window.location.host === 'peacefulstar.art') {
-      document.title = "Peaceful Star";
-    }
-  }, []);
+  // useEffect(() => {
+  //   console.log(window.location.host)
+  //   if (window.location.host ==='angelstar.art') {
+  //     document.title = "Angel Star";
+  //   }
+  // }, []);
 
   return (
     <>

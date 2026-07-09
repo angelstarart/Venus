@@ -6,15 +6,13 @@ import {ApolloProvider} from "@apollo/client/react";
 import App from './components/App';
 
 const root = createRoot(document.getElementById('root') as Element);
-const { NODE_ENV, TYPE } = process.env;
+const { NODE_ENV } = process.env;
 console.log(NODE_ENV)
 
 const generateUri = (): string => {
   return NODE_ENV === 'production'
-    ? 'https://peacefulstar.art/graphql' :
-    TYPE === 'virtual' ?
-      'http://localhost:3010/graphql':
-      'http://localhost:3000/graphql';
+    ? 'https://angellstar.art/graphql' :
+    'http://localhost:3000/graphql';
 };
 
 const client = new ApolloClient({
