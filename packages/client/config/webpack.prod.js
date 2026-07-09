@@ -1,15 +1,14 @@
-'use strict';
+import path from "node:path";
+import {merge} from "webpack-merge";
+import {CleanWebpackPlugin} from "clean-webpack-plugin";
+import OptimizeCssAssetsPlugin from "optimize-css-assets-webpack-plugin";
+import TerserPlugin from "terser-webpack-plugin";
+import {common} from "./webpack.common.js";
 
-const path = require('path'),
-    {merge} = require('webpack-merge'),
-    {CleanWebpackPlugin} = require('clean-webpack-plugin'),
-    OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin'),
-    TerserPlugin = require('terser-webpack-plugin');
-
-const common = require('./webpack.common.js');
+const __dirname = import.meta.dirname;
 const source = path.join(__dirname, '../source');
 
-module.exports = merge(common, {
+export default merge(common,{
     mode: 'production',
     devtool: false,
     entry: {

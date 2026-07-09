@@ -1,6 +1,25 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "allowImportingTsExtensions": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "types": ["@emotion/react/types/css-prop"],
+    "allowJs": true,
+    "baseUrl": ".",
+    "paths": {
+      "@images/*": ["source/images/*"]
+    }
+  },
   "exclude": [
     "node_modules/**/*",
+    "../server"
   ]
 }

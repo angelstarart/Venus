@@ -1,16 +1,19 @@
+import type {FC} from 'react';
 import React, { useState } from 'react';
-import { useMutation } from '@apollo/client';
-import style from '../../styles/scss/main.module.scss';
+import { useMutation } from '@apollo/client/react';
 import { CHAT } from '../graphql/mutations';
 
-const AI = () => {
+type ChatData = { chat: { answer: string } };
+type ChatVars = { question: string };
+
+const AI: FC = () => {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const [chat] = useMutation(CHAT, {
+  const [chat] = useMutation<ChatData, ChatVars>(CHAT, {
     onCompleted: (res) => {
-      if (res.chat) {
+      if (res.chat.answer) {
         setLoading(false);
         setAnswer(res.chat.answer);
       }
@@ -19,11 +22,11 @@ const AI = () => {
       console.error(err);
     },
   });
-  const handleChange = (e: any) => {
+  const handleChange = (e: {target: {value: string}}): void => {
     setQuestion(e.target.value);
   };
 
-  const handleAsk = () => {
+  const handleAsk: () => void = () => {
     setLoading(true);
     chat({ variables: { question } })
       .then((r) => console.log(r))
@@ -31,10 +34,10 @@ const AI = () => {
   };
 
   return (
-    <section className={style.centering}>
-      <div className={style.frame}>
+    <section className={"centering"}>
+      <div className={"frame"}>
         <textarea placeholder={'Ask me anything...'} onChange={handleChange} />
-        <div className={style.button} onClick={handleAsk}>
+        <div className={"button"} onClick={handleAsk}>
           Ask
         </div>
         <textarea readOnly={true} value={loading ? 'Loading...' : answer} />

@@ -1,57 +1,80 @@
-import { gql } from '@apollo/client';
+import {gql} from '@apollo/client';
 
-export const CREATE_USER = gql`
-  mutation CreateUser($name: String!, $email: String!) {
-    createUser(input: { name: $name, email: $email }) {
+export const GENERATE_REGISTRATION = gql`
+  mutation GenerateRegistration($name: String!, $email: String!) {
+    generateRegistration(name: $name, email: $email ) {
+      options {
+        challenge
+        rp {
+          id
+          name
+        }
+        user {
+          id
+          name
+          displayName
+        }
+        pubKeyCredParams {
+          alg
+          type
+        }
+        timeout
+        attestation
+        authenticatorSelection {
+          residentKey
+          requireResidentKey
+        }
+        extensions {
+          credProps
+        }
+      }
+      url
       token
     }
   }
 `;
 
-export const SIGN_IN_USER = gql`
-  mutation SignInUser($email: String!, $password: String!) {
-    signInUser(input: { email: $email, password: $password }) {
-      isAuthenticated
-    }
-  }
-`;
-
-export const SIGN_OUT_USER = gql`
-  mutation SignOutUser {
-    signOutUser {
-      status
-    }
-  }
-`;
-
 export const VERIFY_REGISTRATION = gql`
-  mutation VerifyRegistration($options: Credential) {
-    verifyRegistration(input: { options: $options }) {
-      options {
-        verified
-        registrationInfo {
-          fmt
-          counter
-          aaguid
-          credentialID
-          credentialPublicKey
-          attestationObject
-          credentialType
-          userVerified
-          credentialDeviceType
-          credentialBackedUp
-          origin
-          rpID
-        }
-      }
+  mutation VerifyRegistration($options: Credential, $token: String!) {
+    verifyRegistration(options: $options, token: $token) {
+      verified
     }
   }
 `;
+
+// export const GENERATE_AUTHENTICATION = gql`
+//   mutation GenerateAuthentication($token: String!) {
+//     generateAuthentication(token: $token) {
+//       options {
+//         timeout
+//         allowCredentials {
+//           id
+//           type
+//           transports
+//         }
+//         userVerification
+//         rpID
+//         challenge
+//         extensions {
+//           credProps
+//         }
+//       }
+//     }
+//   }
+// `;
 
 export const CHAT = gql`
   mutation Chat($question: String!) {
-    chat(input: { question: $question }) {
+    chat(question: $question) {
       answer
     }
   }
 `;
+
+// export const CREATE_IMAGE = gql`
+//   mutation CreateImage($prompt: String!) {
+//     createImage(prompt: $prompt) {
+//       response
+//     }
+//   }
+// `;

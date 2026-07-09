@@ -10,14 +10,8 @@ const typeDefs = gql`
     #    password: String
     createdAt: Date
   }
-  type IsAuthenticated {
-    status: Int!
-  }
-  type SignIn {
-    isAuthenticated: Boolean!
-  }
-  type SignOut {
-    status: Int!
+  type Decode {
+    decoded: String!
   }
   type RP {
     id: String!
@@ -39,7 +33,7 @@ const typeDefs = gql`
   type Extensions {
     credProps: Boolean
   }
-  type Registration {
+  type PublicKeyCredentialCreationOptions {
     challenge: String
     rp: RP
     user: CredentialUser
@@ -50,8 +44,25 @@ const typeDefs = gql`
     extensions: Extensions
   }
   type RegistrationOptions {
-    options: Registration
+    options: PublicKeyCredentialCreationOptions
     url: String
+    token: String
+  }
+  type AllowCredentials {
+    id: String
+    type: String
+    transports: [String]
+  }
+  type PublicKeyCredentialRequestOptions {
+    timeout: Int
+    allowCredentials: AllowCredentials
+    userVerification: String
+    rpID: String
+    challenge: String
+    extensions: Extensions
+  }
+  type GenAuthOpts {
+    options: PublicKeyCredentialRequestOptions
   }
   type RegistrationInfo {
     fmt: String
@@ -74,11 +85,10 @@ const typeDefs = gql`
   type RegistrationResponse {
     options: ResponseOpts
   }
-  type AuthenticationPayload {
-    id: ID!
-    token: String!
-    email: String!
+  type VerifiedResponse {
+    verified: Boolean
   }
+
   type Chat {
     id: ID!
     answer: String
@@ -93,7 +103,7 @@ const typeDefs = gql`
   input ClientExtensionResults {
     credProps: CredProps
   }
-  input Response {
+  input NestResponse {
     attestationObject: String
     authenticatorData: String
     clientDataJSON: String
@@ -101,51 +111,33 @@ const typeDefs = gql`
     publicKeyAlgorithm: Int
     transports: [String]
   }
-  input CredentialObj {
+  input Response {
     authenticatorAttachment: String
     clientExtensionResults: ClientExtensionResults
     id: String
     rawId: String
-    response: Response
+    response: NestResponse
     type: String
   }
   input Credential {
-    response: CredentialObj
+    response: Response
     expectedChallenge: String
     expectedOrigin: String
     expectedRPID: String
     requireUserVerification: Boolean
   }
-  input ResponseObj {
-    options: Credential
-  }
-  input Create {
-    name: String!
-    email: String!
-    #    password: String!
-  }
-  input Sign {
-    email: String!
-    password: String!
-  }
-  input question {
-    question: String!
-  }
 
   type Query {
-    getUser(input: GetUser): User
-    generateRegistration: RegistrationOptions
-    isAuthenticated: IsAuthenticated
+    getUser(email: String!): User
+    verifyToken(token: String!): Decode
+    generateAuthentication(email: String!): GenAuthOpts!
   }
   type Mutation {
-    createUser(input: Create): AuthenticationPayload!
-    signInUser(input: Sign): SignIn!
-    signOutUser: SignOut
-    #    updateUser(id: ID!, name: String, email: String, password: String): User
-    #    deleteUser(id: ID!): User
-    verifyRegistration(input: ResponseObj): RegistrationResponse
-    chat(input: question): Chat!
+    generateRegistration(name: String!, email: String!): RegistrationOptions!
+    verifyRegistration(options: Credential, token: String!): VerifiedResponse!
+#    generateAuthentication(token: String!): GenAuthOpts!
+    chat(question: String!): Chat!
   }
 `;
 
-export default typeDefs;
+export { typeDefs };

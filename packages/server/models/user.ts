@@ -3,6 +3,7 @@ import { Schema, model } from 'mongoose';
 interface IUser {
   name: string;
   email: string;
+  devices: object[];
   // password: string;
 }
 
@@ -22,6 +23,7 @@ const userSchema = new Schema<IUser>(
       unique: true,
       required: true,
     },
+    devices: [Object],
     // password: {
     //   type: String,
     //   min: 6,
@@ -35,4 +37,4 @@ const userSchema = new Schema<IUser>(
 
 const User = model<IUser>('user', userSchema);
 
-export default User;
+export { User };

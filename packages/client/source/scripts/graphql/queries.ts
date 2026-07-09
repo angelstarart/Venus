@@ -2,49 +2,39 @@ import { gql } from '@apollo/client';
 
 export const GET_USER = gql`
   query GetUser($email: String!) {
-    getUser(input: { email: $email }) {
+    getUser(email: $email ) {
       id
+      name
+      email
     }
   }
 `;
 
-export const GENERATE_REGISTRATION = gql`
-  query GenerateRegistration {
-    generateRegistration {
+export const VERIFY_TOKEN = gql`
+  query VerifyToken($token: String!) {
+    verifyToken(token: $token) {
+      decoded
+    }
+  }
+`;
+
+export const GENERATE_AUTHENTICATION = gql`
+  query GenerateAuthentication($email: String!) {
+    generateAuthentication(email: $email) {
       options {
-        challenge
-        rp {
-          id
-          name
-        }
-        user {
-          id
-          name
-          displayName
-        }
-        pubKeyCredParams {
-          alg
-          type
-        }
         timeout
-        attestation
-        authenticatorSelection {
-          residentKey
-          requireResidentKey
+        allowCredentials {
+          id
+          type
+          transports
         }
+        userVerification
+        rpID
+        challenge
         extensions {
           credProps
         }
       }
-      url
-    }
-  }
-`;
-
-export const IS_AUTHENTICATED = gql`
-  query IsAuthenticated {
-    isAuthenticated {
-      status
     }
   }
 `;

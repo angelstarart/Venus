@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 
-interface IToken {
+export interface IToken {
   tags: string[];
 }
 

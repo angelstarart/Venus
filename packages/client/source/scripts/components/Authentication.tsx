@@ -1,72 +1,45 @@
-import React, { useEffect, useState } from 'react';
-import { useMutation, useQuery } from '@apollo/client';
-import { startRegistration } from '@simplewebauthn/browser';
-import { VERIFY_REGISTRATION } from '../graphql/mutations';
-import { GENERATE_REGISTRATION } from '../graphql/queries';
+import React, { useEffect, useState } from "react";
+import { useAuthenticator } from '@aws-amplify/ui-react';
+import type { Schema } from "../../../../server/amplify/data/resource.ts";
+import { generateClient } from "aws-amplify/data";
 
-const Authentication = () => {
-  const { error, data } = useQuery(GENERATE_REGISTRATION);
-  const [verified, setVerified] = useState(false);
-  const [options, setOptions] = useState({
-    response: {},
-    expectedChallenge: '',
-    expectedOrigin: '',
-    expectedRPID: '',
-    requireUserVerification: true,
-  });
+const client = generateClient<Schema>();
 
-  const [verifyRegistration] = useMutation(VERIFY_REGISTRATION, {
-    onCompleted: (res): void => {
-      setVerified(res.verifyRegistration.options.verified);
-    },
-    onError: (err): void => {
-      console.error(err);
-    },
-  });
+const Authentication: React.FunctionComponent = ()=> {
+  const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
+  const { signOut } = useAuthenticator();
 
   useEffect(() => {
-    if (data?.generateRegistration) {
-      const opts = data.generateRegistration.options;
-      const credential = startRegistration(opts);
-      credential
-        .then((res) => {
-          options.response = res;
-          options.expectedChallenge = opts.challenge;
-          options.expectedOrigin = data.generateRegistration.url;
-          options.expectedRPID = opts.rp.id;
-          setOptions((prev) => ({ ...prev }));
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-    }
-  }, [data, error]);
+    client.models.Todo.observeQuery().subscribe({
+      next: (data) => setTodos([...data.items]),
+    });
+  }, []);
 
-  useEffect(() => {
-    if (options.expectedOrigin !== '') {
-      verifyRegistration({ variables: { options } })
-        .then((r) => console.log(r))
-        .catch((err) => console.error(err));
-    }
-  }, [options]);
+  const createTodo = async (): Promise<void> => {
+    await client.models.Todo.create({ content: window.prompt("Todo content") });
+  }
+
+  const deleteTodo = async (id: string): Promise<void> => {
+    await client.models.Todo.delete({ id })
+  }
 
   return (
-    <>
-      <div>authentication</div>
-      {(() => {
-        const length = Object.keys(options.response).length;
-        return (
-          <>
-            {verified ? (
-              <div>Authentication registered!</div>
-            ) : (
-              length > 0 && <div>Authentication failed</div>
-            )}
-          </>
-        );
-      })()}
-    </>
+    <main>
+      <h1>My todos</h1>
+      <button onClick={createTodo}>+ new</button>
+      <ul>
+        {todos.map((todo) => (
+          <li onClick={() => deleteTodo(todo.id)} key={todo.id}>{todo.content}</li>
+        ))}
+      </ul>
+      <button onClick={signOut}>Sign out</button>
+      <div>
+        <a href="https://docs.amplify.aws/react/start/quickstart/#make-frontend-updates">
+          Review next step of this tutorial.
+        </a>
+      </div>
+    </main>
   );
-};
+}
 
 export default Authentication;

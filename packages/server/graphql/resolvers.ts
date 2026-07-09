@@ -1,250 +1,239 @@
-import jwt, { Algorithm } from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
+import type {Request, Response} from "express";
+import type {Algorithm, JwtPayload} from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
+// import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
-import OpenAI from 'openai';
+import {GoogleGenerativeAI} from "@google/generative-ai";
 import {
   generateRegistrationOptions,
   verifyRegistrationResponse,
   generateAuthenticationOptions,
-  verifyAuthenticationResponse,
+  // verifyAuthenticationResponse,
 } from '@simplewebauthn/server';
-// import { Fido2Lib } from 'fido2-lib';
-// import { coerceToArrayBuffer, coerceToBase64Url } from 'fido2-lib/lib/utils';
-import User from '..//models/user';
-import Token from '../models/token';
-import Chat from '../models/chat';
 
-dotenv.config({ path: '../../.env' });
-const { JWT_SECRET, NODE_ENV, OPENAI_API_KEY } = process.env;
+import type {
+  GenerateRegistrationOptionsOpts,
+  VerifyRegistrationResponseOpts,
+  VerifiedRegistrationResponse,
+  GenerateAuthenticationOptionsOpts,
+  // VerifyAuthenticationResponseOpts,
+  // VerifiedAuthenticationResponse,
+} from '@simplewebauthn/server';
 
-const openai = new OpenAI({
-  apiKey: OPENAI_API_KEY,
-});
-console.log(NODE_ENV, 24);
+import type {
+  AuthenticatorTransportFuture,
+  // PublicKeyCredentialType
+  // PublicKeyCredentialDescriptorJSON
+  // AuthenticationResponseJSON,
+  // AuthenticatorDevice,
+  // RegistrationResponseJSON,
+} from '@simplewebauthn/types';
 
-// const rp = NODE_ENV === 'production' ? 'https://peacefulstar.art' : 'localhost';
-//
-// const f2l = new Fido2Lib({
-//   timeout: 6000,
-//   rpId: rp,
-//   rpName: 'ACME',
-//   challengeSize: 128,
-//   attestation: 'direct',
-//   cryptoParams: [-7, -257, -35, -36, -258, -259, -37, -38, -39, -8],
-//   authenticatorAttachment: 'platform',
-//   authenticatorRequireResidentKey: false,
-//   authenticatorUserVerification: 'required',
-// });
+import { User } from '../models/user';
+// import Token from '../models/token';
+import { Chat } from '../models/chat';
 
-const cookieOpts = {
-  path: '/',
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-};
+interface env {
+  JWT_SECRET: string;
+  NODE_ENV: string;
+  OPENAI_API_KEY: string;
+  GOOGLE_GEN_AI_KEY: string;
+}
 
-const isValidToken = (str: string): boolean => {
-  console.log(str, 62);
-  if (str) {
-    try {
-      const token: any = JSON.parse(str);
-      console.log(jwt.verify(token, JWT_SECRET as Algorithm), 66);
-      return !!jwt.verify(token, JWT_SECRET as Algorithm);
-    } catch (err) {
-      return false;
-    }
-  }
-  return false;
-};
+interface decoded {
+  email: JwtPayload | string
+}
 
-const getStatus = (token: string, tokens: string[]): number => {
-  return isValidToken(token) && tokens.length === 0 ? 200 : 401;
-};
+interface device {
+  credentialPublicKey: Uint8Array,
+  credentialID: string,
+  counter: number,
+  transports: AuthenticatorTransportFuture[] | undefined
+}
+
+dotenv.config({path: '../../.env'});
+const {JWT_SECRET, GOOGLE_GEN_AI_KEY} = process.env as unknown as env;
+
+const genAI = new GoogleGenerativeAI(GOOGLE_GEN_AI_KEY);
 
 const resolvers = {
   Query: {
-    async getUser(_: any, args: any): Promise<object> {
-      const {
-        input: { email },
-      } = args;
-      return User.findOne({ email }) as any;
+    async getUser(_: unknown, args: { email: string }): Promise<object> {
+      const {email} = args;
+      console.log(email, 69)
+
+      return await User.findOne({email}) as object;
     },
-    async generateRegistration(_: any, _args: any, ctx: any): Promise<object> {
-      const token = ctx.req.cookies['x-access-token'];
-      const result: any = jwt.verify(
-        JSON.parse(token),
-        JWT_SECRET as Algorithm,
-      );
-
-      const url = ctx.req.protocol + '://' + ctx.req.get('host');
-      console.log(ctx.req.protocol, 79);
-      console.log(ctx.req.hostname, 80);
-      // console.log(ctx.req.get('host'), 81);
-      console.log(result, 82);
-
-      // const id = result.id;
-      // const email = result.email;
-      let obj;
-      if (result) {
-        const options = generateRegistrationOptions({
-          rpName: 'PeacefulStar',
-          rpID: ctx.req.hostname,
-          userID: result.id,
-          userName: result.email,
-          // userDisplayName: user.displayName,
-          timeout: 300000,
-          attestationType: 'none',
-          // excludeCredentials,
-          authenticatorSelection: {
-            residentKey: 'discouraged',
-          },
-          supportedAlgorithmIDs: [
-            -7, -257, -35, -36, -258, -259, -37, -38, -39, -8,
-          ],
-          // extensions,
-        });
-
-        await options
-          .then((res) => {
-            obj = res;
-          })
-          .catch((err) => {
-            throw new Error(err);
-          });
-      }
-
-      return { options: obj, url: url };
+    verifyToken(_: unknown, args: { token: string } ): JwtPayload | string {
+      const {token} = args;
+      const decoded = jwt.verify(token, JWT_SECRET);
+      console.log(decoded as decoded, 75)
+      const email = (decoded as decoded).email;
+      console.log(email, 78)
+      return {decoded: email}
     },
-    async isAuthenticated(_: any, _args: any, ctx: any): Promise<object> {
-      // console.log(ctx.req, 94);
-      const token: string = ctx.req.cookies['x-access-token'];
-      const tokens: string[] = await Token.find({ tags: token });
-      const status: number = getStatus(
-        ctx.req.cookies['x-access-token'],
-        tokens,
-      );
+    async generateAuthentication(_: unknown, args: { email: string }, ctx: { req: Request }): Promise<object> {
+      const {email} = args;
+      const user = await User.findOne({email: email});
+      console.log(user, 83)
+      const devices = user?.devices as device[];
+      const opts: GenerateAuthenticationOptionsOpts = {
+        timeout: 300000,
+        allowCredentials: devices.map((dev) => ({
+          id: dev.credentialID,
+          type: 'public-key',
+          transports: dev.transports,
+        })),
+        userVerification: 'preferred',
+        rpID: ctx.req.hostname,
+      };
 
-      if (status === 401) {
-        if (token) {
-          const newToken = new Token();
-          newToken.tags.push(token);
-          await newToken.save();
-        }
-        ctx.res.clearCookie('x-access-token');
+      console.log(opts,96)
+
+      const options = await generateAuthenticationOptions(opts);
+      console.log(options, 99)
+
+      // const {rpId, challenge, timeout, userVerification, extensions} = options;
+
+      return {
+        options: options
       }
-      return { status };
     },
   },
   Mutation: {
-    createUser: async (_: any, args: any, ctx: any): Promise<object> => {
-      const {
-        input: { name, email },
-      } = args;
-      // const salt = bcrypt.genSaltSync(10);
+    generateRegistration: async (
+      _: never,
+      args: { email: string, name: string },
+      ctx: { req: Request, res: Response }): Promise<object> => {
 
-      try {
-        const user = await User.create({
-          name,
-          email,
-          // password: bcrypt.hashSync(password, salt),
-        });
+      const {name, email} = args;
 
-        const token = jwt.sign(
-          { id: user.id, email: user.email },
-          JWT_SECRET as Algorithm,
-          { expiresIn: '1d' },
-        );
-
-        ctx.res.cookie('x-access-token', JSON.stringify(token), cookieOpts);
-        return { token };
-      } catch (error: any) {
-        throw new Error(error.message);
+      const opts: GenerateRegistrationOptionsOpts = {
+        rpName: name,
+        rpID: ctx.req.hostname,
+        // userID: result.id,
+        userName: email,
+        userDisplayName: name,
+        timeout: 300000,
+        attestationType: 'none',
+        // excludeCredentials,
+        authenticatorSelection: {
+          residentKey: 'discouraged',
+          userVerification: 'preferred'
+        },
+        supportedAlgorithmIDs: [-7, -257],
+        // extensions,
       }
-    },
-    signInUser: async (_: any, args: any, ctx: any): Promise<object> => {
-      const {
-        input: { email, password },
-      } = args;
+      console.log(opts, 109)
+      const options = await generateRegistrationOptions(opts);
+      console.log(options, 111)
+      const url = ctx.req.protocol + '://' + ctx.req.get('host');
+      const user = await User.create({
+        name,
+        email,
+        // password: bcrypt.hashSync(password, salt),
+      });
+      console.log(user, 117)
 
-      try {
-        const user: any = await User.findOne({ email });
-
-        const isValidPassword: boolean = bcrypt.compareSync(
-          password,
-          user.password,
-        );
-        if (isValidPassword) {
-          const token = jwt.sign(
-            { _id: user._id, email: user.email },
-            JWT_SECRET as Algorithm,
-            { expiresIn: '1d' },
-          );
-          ctx.res.cookie('x-access-token', JSON.stringify(token), cookieOpts);
-        }
-        return {
-          isAuthenticated: isValidPassword,
-        };
-      } catch (error: any) {
-        throw new Error(error.message);
-      }
-    },
-    signOutUser: async (_: any, _args: any, ctx: any): Promise<object> => {
-      const token: string = ctx.req.cookies['x-access-token'];
-      if (token) {
-        const newToken = new Token();
-        newToken.tags.push(token);
-        await newToken.save();
-      }
-      ctx.res.clearCookie('x-access-token');
-      return {
-        status: 200,
-      };
+      const token = jwt.sign(
+        {id: user.id as string, email: user.email},
+        JWT_SECRET as Algorithm,
+        {expiresIn: '1d'},
+      );
+      console.log(token, 124)
+      return {options: options, url: url, token: token}
     },
     verifyRegistration: async (
-      _: any,
-      args: any,
-      ctx: any,
+      _: unknown,
+      args: { options: VerifyRegistrationResponseOpts, token: string },
+      // ctx: {req: Request, res: Response}
     ): Promise<object> => {
-      const {
-        input: { options },
-      } = args;
-      console.log(args, 210);
-      console.log(options, 211);
+      const {options, token} = args;
+      console.log(options, 158)
+      console.log(token, 159)
+      // const url = ctx.req.protocol + '://' + ctx.req.get('host');
+      // console.log(url)
+      const verification: VerifiedRegistrationResponse = await verifyRegistrationResponse(options);
+      console.log(verification, 163)
+      const {verified, registrationInfo} = verification;
+      console.log(verified,164)
 
-      const verification = await verifyRegistrationResponse(options);
-      console.log(verification, 214);
+      try {
+        if (verified && registrationInfo) {
+          // const decoded = jwt.verify(token, JWT_SECRET);
+          // console.log(decoded, 168)
+          const {credential} = registrationInfo;
+          console.log(credential,171)
+          // const devices: object[] = [];
+          // const device = {
+          //   credentialPublicKey,
+          //   credentialID,
+          //   counter,
+          //   transports: options.response.response.transports,
+          // }
+          // devices.push(device)
+          // console.log(devices, 178)
+          // await User.findOneAndUpdate({email: (decoded as decoded).email}, {devices: devices});
+        }
 
-      return { options: verification };
-    },
-    chat: async (_: any, args: any): Promise<any> => {
-      const {
-        input: { question },
-      } = args;
-
-      if (question) {
-        const answer = await openai.chat.completions
-          .create({
-            model: 'gpt-3.5-turbo',
-            messages: [{ role: 'user', content: question }],
-            // temperature: 0,
-            // max_tokens: 1000,
-          })
-          .then((res) => {
-            return res.choices[0].message.content;
-          })
-          .catch((err) => {
-            throw new Error(err);
-          });
-        console.log(answer, 160);
-        await Chat.create({
-          question,
-          answer,
-        });
-        return {
-          answer: answer,
-        };
+      } catch (err: unknown) {
+        console.error(err)
       }
+
+      return {verified: verified};
+    },
+    // generateAuthentication: async (_: unknown, args: {token: string}, ctx: {req: Request}): Promise<object> => {
+    //   const {token} = args;
+    //   console.log(ctx.req.hostname, 64)
+    //   const decoded =  jwt.verify(token, JWT_SECRET);
+    //   console.log(decoded, 65)
+    //   const user = await User.findOne({email: (decoded as decoded).email});
+    //   console.log(user, 67)
+    //   const devices = user?.devices as device[];
+    //   const opts: GenerateAuthenticationOptionsOpts = {
+    //     timeout: 300000,
+    //     allowCredentials: devices.map((dev) => ({
+    //       id: dev.credentialID,
+    //       type: 'public-key',
+    //       transports: dev.transports,
+    //     })),
+    //     userVerification: 'preferred',
+    //     rpID: ctx.req.hostname,
+    //   };
+    //
+    //   console.log(opts,89)
+    //
+    //   const options = await generateAuthenticationOptions(opts);
+    //   console.log(options, 92)
+    //
+    //   return {options: options}
+    // },
+
+    chat: async (_: unknown, args: { question: string }): Promise<object> => {
+      const {question} = args;
+
+      const model = genAI.getGenerativeModel({model: "gemini-pro"});
+      const answer = await model
+        .generateContent(question)
+        .then((res) => {
+          return res.response.text();
+        })
+        .catch((err: unknown) => {
+          console.error(err, 227)
+          throw new Error(err instanceof Error ? err.message : String(err));
+        });
+
+      console.log(answer, 231)
+
+      await Chat.create({
+        question,
+        answer,
+      });
+      return {
+        answer: answer,
+      };
     },
   },
 };
 
-export default resolvers;
+export { resolvers };
