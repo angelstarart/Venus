@@ -25,9 +25,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -52,9 +52,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR (on runner, so EC2 pull command can use the token)
         id: login-ecr
@@ -66,14 +66,14 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
           IMAGE_TAG: ${{ github.sha }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          envs: ECR_REGISTRY,ECR_REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_REGION
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: ECR_REGISTRY,ECR_REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY,AWS_SECRET_ACCESS_KEY,AWS_REGION
           script: |
             # Authenticate Docker with ECR
             aws ecr get-login-password --region "$AWS_REGION" \
@@ -83,20 +83,20 @@ jobs:
             docker pull "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
             # Stop and remove the existing container (ignore errors if not running)
-            docker stop angelstar || true
-            docker rm   angelstar || true
+#            docker stop angelstar || true
+#            docker rm   angelstar || true
 
             # Start the new container
             # - /etc/letsencrypt is mounted so SSL certs are available to the app
             # - /etc/.env is mounted for secrets (set NODE_ENV/PORT via Dockerfile CMD)
-            docker run -d \
-              --name angelstar \
-              --restart unless-stopped \
-              -p 80:80 \
-              -p 443:443 \
-              -v /etc/letsencrypt:/etc/letsencrypt:ro \
-              --env-file /etc/angelstar.env \
-              "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+#            docker run -d \
+#              --name angelstar \
+#              --restart unless-stopped \
+#              -p 80:80 \
+#              -p 443:443 \
+#              -v /etc/letsencrypt:/etc/letsencrypt:ro \
+#              --env-file /etc/angelstar.env \
+#              "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
             # Remove dangling images to free disk space
-            docker image prune -f
+#            docker image prune -f
