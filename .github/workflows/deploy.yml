@@ -100,4 +100,4 @@ jobs:
 #              "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
             # Remove dangling images to free disk space
-#            docker image prune -f
+            docker image prune -f
