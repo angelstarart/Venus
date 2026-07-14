@@ -75,7 +75,7 @@ jobs:
       - name: move dir
         run: |
           echo "${{ secrets.EC2_USER }}"
-          cd /home/${{ secrets.EC2_USER }}/app
+          cd /var/www/venus
           ls -al
 
       - name: Log in to Docker Hub on EC2
