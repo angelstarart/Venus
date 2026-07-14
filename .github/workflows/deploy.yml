@@ -72,9 +72,11 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: check value
+      - name: move dir
         run: |
           echo "${{ secrets.EC2_USER }}"
+          cd ~/app
+          ls -al
 
       - name: Log in to Docker Hub on EC2
         run: echo "${{ secrets.REGISTRY_PASSWORD}}" | docker login -u "${{ secrets.REGISTRY_USER}}" --password-stdin
@@ -89,28 +91,7 @@ jobs:
 
       - name: Run the new container
         run: docker run -d --name venus -p 80:80 -p 443:443 --restart always ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-##                    # Authenticate Docker with Docker Hub
-##                    echo "$REGISTRY_PASSWORD" | docker login --username "$REGISTRY_USER" --password-stdin
-##
-##                    # Pull the new image
-##                    docker pull "$REGISTRY_USER/${GITHUB_REPOSITORY##*/}:$IMAGE_TAG"
-##
-##                    # Stop and remove the existing container (ignore errors if not running)
-##            #            docker stop angelstar || true
-##            #            docker rm   angelstar || true
-##
-##            # Start the new container
-##            # - /etc/letsencrypt is mounted so SSL certs are available to the app
-##            # - /etc/.env is mounted for secrets (set NODE_ENV/PORT via Dockerfile CMD)
-##            #            docker run -d \
-##            #              --name angelstar \
-##            #              --restart unless-stopped \
-##            #              -p 80:80 \
-##            #              -p 443:443 \
-##            #              -v /etc/letsencrypt:/etc/letsencrypt:ro \
-##            #              --env-file /etc/angelstar.env \
-##            #              "$REGISTRY_USER/${GITHUB_REPOSITORY##*/}:$IMAGE_TAG"
-#
+
       - name: Remove dangling images to free disk space
         run: docker image prune -f
 
