@@ -74,23 +74,22 @@ jobs:
           script : |
             cd /var/www/venus
             ls -al
+            echo "${{ secrets.REGISTRY_PASSWORD}}" | docker login -u "${{ secrets.REGISTRY_USER}}" --password-stdin
+            docker pull ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
 
-      - name: Log in to Docker Hub on EC2
-        run: echo "${{ secrets.REGISTRY_PASSWORD}}" | docker login -u "${{ secrets.REGISTRY_USER}}" --password-stdin
+#      - name: Stop and remove existing container if running
+#        run: |
+#          docker stop venus || true
+#          docker rm venus || true
 
-      - name: Stop and remove existing container if running
-        run: |
-          docker stop venus || true
-          docker rm venus || true
+#      - name: Pull the latest image
+#        run: docker pull ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
 
-      - name: Pull the latest image
-        run: docker pull ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+#      - name: Run the new container
+#        run: docker run -d --name venus -p 80:80 -p 443:443 --restart always ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
 
-      - name: Run the new container
-        run: docker run -d --name venus -p 80:80 -p 443:443 --restart always ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-
-      - name: Remove dangling images to free disk space
-        run: docker image prune -f
+#      - name: Remove dangling images to free disk space
+#        run: docker image prune -f
 
       - name: Completed deploy
         run: |
