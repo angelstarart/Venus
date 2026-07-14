@@ -42,8 +42,8 @@ jobs:
         #          echo "image=$REGISTRY_USER/${GITHUB_REPOSITORY##*/}:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
         uses: docker/build-push-action@v7.3.0
         with:
-          context: ./app
-          file: ./app/Dockerfile
+          context: /home/ec2-user/app
+          file: /home/ec2-user/app/Dockerfile
           push: true
           tags: |
             ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
