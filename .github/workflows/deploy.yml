@@ -117,4 +117,3 @@ jobs:
       - name: Completed deploy
         run: |
           echo "Completed deploy"
-          echo "URL: http://${{ secrets.EC2_HOST }}
