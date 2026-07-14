@@ -64,15 +64,14 @@ jobs:
     steps:
       - name: Deploy on EC2 via SSH
         uses: appleboy/ssh-action@v1.2.5
-        env:
-          REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
-          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
-          IMAGE_TAG: ${{ github.sha }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-#          envs: REGISTRY_USER,REGISTRY_PASSWORD,IMAGE_TAG
+#        env:
+#          REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+#          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+#          IMAGE_TAG: ${{ github.sha }}
           script: |
           # Log in to Docker Hub on EC2
             echo "${{ secrets.REGISTRY_PASSWORD}}" | docker login -u "${{ secrets.REGISTRY_USER}}" --password-stdin
