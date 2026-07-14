@@ -71,12 +71,9 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: move dir
-        run: |
-          echo "${{ secrets.EC2_USER }}"
-          cd /var/www/venus
-          ls -al
+          script : |
+            cd /var/www/venus
+            ls -al
 
       - name: Log in to Docker Hub on EC2
         run: echo "${{ secrets.REGISTRY_PASSWORD}}" | docker login -u "${{ secrets.REGISTRY_USER}}" --password-stdin
