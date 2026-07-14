@@ -33,6 +33,10 @@ jobs:
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
+      - name: Confirm secrets
+        run: |
+          echo "${{ secrets.REGISTRY_USER }}"
+
       - name: Build, tag, and push image to Docker Hub
         #        id: build-push
         #        run: |
@@ -42,8 +46,7 @@ jobs:
         #          echo "image=$REGISTRY_USER/${GITHUB_REPOSITORY##*/}:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
         uses: docker/build-push-action@v7.3.0
         with:
-          context: /home/ec2-user/app
-          file: /home/ec2-user/app/Dockerfile
+          file: ./Dockerfile
           push: true
           tags: |
             ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
