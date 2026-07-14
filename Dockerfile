@@ -63,10 +63,10 @@ WORKDIR /usr/src/app
 COPY package.json .
 COPY ./packages/client/package.json packages/client/
 COPY ./packages/server/package.json packages/server/
-RUN yarn install
-COPY . .
+#RUN yarn install
+#COPY . .
 
 EXPOSE 80
 EXPOSE 443
 
-CMD ["yarn", "server"]
+CMD ["yarn", "install"]
