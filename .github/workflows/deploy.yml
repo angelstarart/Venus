@@ -76,8 +76,8 @@ jobs:
             ls -al
             echo "${{ secrets.REGISTRY_PASSWORD}}" | docker login -u "${{ secrets.REGISTRY_USER}}" --password-stdin
             docker pull ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-            docker-compose -f docker-compose.yml down
-            docker-compose -f docker-compose.yml up -d
+            docker-compose -f down
+            docker-compose -f up -d
             docker image prune -f
 
 #      - name: Stop and remove existing container if running
