@@ -8,6 +8,7 @@ on:
 env:
   REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
   IMAGE_TAG: ${{ github.sha }}
+  DOCKER_IMAGE_NAME: venus
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 
@@ -23,19 +24,37 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v7.0.0
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4.2.0
+
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4.4.0
         with:
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Build, tag, and push image to Docker Hub
-        id: build-push
+        #        id: build-push
+        #        run: |
+        #          docker build -t $REGISTRY_USER/${GITHUB_REPOSITORY##*/}:$IMAGE_TAG -t $REGISTRY_USER/${GITHUB_REPOSITORY##*/}:latest .
+        #          docker push $REGISTRY_USER/${GITHUB_REPOSITORY##*/}:$IMAGE_TAG
+        #          docker push $REGISTRY_USER/${GITHUB_REPOSITORY##*/}:latest
+        #          echo "image=$REGISTRY_USER/${GITHUB_REPOSITORY##*/}:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+        uses: docker/build-push-action@v7.3.0
+        with:
+          context: ./app
+          file: ./app/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+            ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
+          cache-from: type=registry,ref=${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:buildcache,mode=max
+
+      - name: image output
         run: |
-          docker build -t $REGISTRY_USER/${GITHUB_REPOSITORY##*/}:$IMAGE_TAG -t $REGISTRY_USER/${GITHUB_REPOSITORY##*/}:latest .
-          docker push $REGISTRY_USER/${GITHUB_REPOSITORY##*/}:$IMAGE_TAG
-          docker push $REGISTRY_USER/${GITHUB_REPOSITORY##*/}:latest
-          echo "image=$REGISTRY_USER/${GITHUB_REPOSITORY##*/}:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+          echo "Image: ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest"
+          echo "SHA: ${{ github.sha }}"
 
   deploy:
     name: Deploy to EC2
@@ -53,29 +72,46 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          envs: REGISTRY_USER,REGISTRY_PASSWORD,IMAGE_TAG
+#          envs: REGISTRY_USER,REGISTRY_PASSWORD,IMAGE_TAG
           script: |
-            # Authenticate Docker with Docker Hub
-            echo "$REGISTRY_PASSWORD" | docker login --username "$REGISTRY_USER" --password-stdin
+          # Log in to Docker Hub on EC2
+            echo "${{ secrets.REGISTRY_PASSWORD}}" | docker login -u "${{ secrets.REGISTRY_USER}}" --password-stdin
+                    
+          # Stop and remove existing container if running
+            docker stop venus || true
+            docker rm venus || true
+                    
+          # Pull the latest image
+            docker pull ${{ secrets.REGISTRY_USER }}/my-app:latest
+                    
+          # Run the new container
+            docker run -d --name venus -p 80:80 -p 443:443 --restart always ${{ secrets.REGISTRY_USER }}/venus:latest
+#                    # Authenticate Docker with Docker Hub
+#                    echo "$REGISTRY_PASSWORD" | docker login --username "$REGISTRY_USER" --password-stdin
+#                    
+#                    # Pull the new image
+#                    docker pull "$REGISTRY_USER/${GITHUB_REPOSITORY##*/}:$IMAGE_TAG"
+#                    
+#                    # Stop and remove the existing container (ignore errors if not running)
+#            #            docker stop angelstar || true
+#            #            docker rm   angelstar || true
+#
+#            # Start the new container
+#            # - /etc/letsencrypt is mounted so SSL certs are available to the app
+#            # - /etc/.env is mounted for secrets (set NODE_ENV/PORT via Dockerfile CMD)
+#            #            docker run -d \
+#            #              --name angelstar \
+#            #              --restart unless-stopped \
+#            #              -p 80:80 \
+#            #              -p 443:443 \
+#            #              -v /etc/letsencrypt:/etc/letsencrypt:ro \
+#            #              --env-file /etc/angelstar.env \
+#            #              "$REGISTRY_USER/${GITHUB_REPOSITORY##*/}:$IMAGE_TAG"
 
-            # Pull the new image
-            docker pull "$REGISTRY_USER/${GITHUB_REPOSITORY##*/}:$IMAGE_TAG"
-
-            # Stop and remove the existing container (ignore errors if not running)
-#            docker stop angelstar || true
-#            docker rm   angelstar || true
-
-            # Start the new container
-            # - /etc/letsencrypt is mounted so SSL certs are available to the app
-            # - /etc/.env is mounted for secrets (set NODE_ENV/PORT via Dockerfile CMD)
-#            docker run -d \
-#              --name angelstar \
-#              --restart unless-stopped \
-#              -p 80:80 \
-#              -p 443:443 \
-#              -v /etc/letsencrypt:/etc/letsencrypt:ro \
-#              --env-file /etc/angelstar.env \
-#              "$REGISTRY_USER/${GITHUB_REPOSITORY##*/}:$IMAGE_TAG"
-
-            # Remove dangling images to free disk space
+          # Remove dangling images to free disk space
             docker image prune -f
+
+          - name: Completed deploy
+            run: |
+              echo "Completed deploy"
+              echo "URL: http://${{ secrets.SERVER_HOST }}
