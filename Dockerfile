@@ -57,15 +57,14 @@ ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}
 RUN git config --global --add safe.directory /home/linuxbrew/.linuxbrew/Homebrew \
     && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" \
     && brew update \
-    && brew install nvm node yarn pyenv
+    && brew install nvm node yarn pyenv certbot
 
 WORKDIR /usr/src/app
-RUN sudo chown linuxbrew:linuxbrew /usr/src/app
-COPY --chown=linuxbrew:linuxbrew package.json .
-COPY --chown=linuxbrew:linuxbrew ./packages/client/package.json packages/client/
-COPY --chown=linuxbrew:linuxbrew ./packages/server/package.json packages/server/
+COPY package.json .
+COPY ./packages/client/package.json packages/client/
+COPY ./packages/server/package.json packages/server/
 RUN yarn install
-COPY --chown=linuxbrew:linuxbrew . .
+COPY . .
 
 EXPOSE 80
 EXPOSE 443
