@@ -117,4 +117,4 @@ jobs:
       - name: Completed deploy
         run: |
           echo "Completed deploy"
-          echo "URL: http://${{ secrets.SERVER_HOST }}
+          echo "URL: http://${{ secrets.EC2_HOST }}
