@@ -75,7 +75,7 @@ jobs:
       - name: move dir
         run: |
           echo "${{ secrets.EC2_USER }}"
-          cd /home/ec2-user/app
+          cd /home/${{ secrets.EC2_USER }}/app
           ls -al
 
       - name: Log in to Docker Hub on EC2
