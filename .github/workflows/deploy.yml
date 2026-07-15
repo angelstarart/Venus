@@ -73,10 +73,11 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script : |
             cd /var/www/venus
+            scp docker-compose.yml ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/venus
             ls -al
             echo "${{ secrets.REGISTRY_PASSWORD}}" | docker login -u "${{ secrets.REGISTRY_USER}}" --password-stdin
             docker pull ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-            docker-compose up -d
+            docker-compose -f docker-compose.yml up -d
 
 #      - name: Stop and remove existing container if running
 #        run: |
