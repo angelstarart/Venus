@@ -71,13 +71,33 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
           script : |
-            cd /var/www/venus
-            echo "${{ secrets.REGISTRY_PASSWORD}}" | docker login -u "${{ secrets.REGISTRY_USER}}" --password-stdin
-            docker pull ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+          # 1. Navigate to your app directory (or clone it if it doesn't exist yet)
+            if [ ! -d "/var/www/venus" ]; then
+              git clone https://github.com/angelstarart/Venus.git /var/www/venus
+              cd /var/www/venus
+            else
+              cd /var/www/venus
+              # Reset any untracked server changes and pull latest code
+              git reset --hard
+              git pull origin main
+            fi
+                     
             ls -al
-            docker-compose -f docker-compose.yml up -d
+            
+            # 3. Start or restart the container system in background detached mode
+            docker compose up -d --build
+            
+            # 4. Prune unused images to prevent your EC2 disk from filling up
             docker image prune -f
+
+
+#            cd /var/www/venus
+#            echo "${{ secrets.REGISTRY_PASSWORD}}" | docker login -u "${{ secrets.REGISTRY_USER}}" --password-stdin
+#            docker pull ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+#            ls -al
+#            docker-compose -f docker-compose.yml up -d
 
 #      - name: Stop and remove existing container if running
 #        run: |
@@ -90,8 +110,6 @@ jobs:
 #      - name: Run the new container
 #        run: docker run -d --name venus -p 80:80 -p 443:443 --restart always ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
 
-#      - name: Remove dangling images to free disk space
-#        run: docker image prune -f
 
       - name: Completed deploy
         run: |
