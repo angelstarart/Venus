@@ -38,12 +38,6 @@ jobs:
           echo "${{ secrets.REGISTRY_USER }}"
 
       - name: Build, tag, and push image to Docker Hub
-        #        id: build-push
-        #        run: |
-        #          docker build -t $REGISTRY_USER/${GITHUB_REPOSITORY##*/}:$IMAGE_TAG -t $REGISTRY_USER/${GITHUB_REPOSITORY##*/}:latest .
-        #          docker push $REGISTRY_USER/${GITHUB_REPOSITORY##*/}:$IMAGE_TAG
-        #          docker push $REGISTRY_USER/${GITHUB_REPOSITORY##*/}:latest
-        #          echo "image=$REGISTRY_USER/${GITHUB_REPOSITORY##*/}:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
         uses: docker/build-push-action@v7.3.0
         with:
           file: ./Dockerfile
@@ -73,27 +67,10 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script : |
             cd ~/venus
-            git pull
+            ls -al
+            git pull origin main
             docker-compose -f docker-compose.yml up -d
-
-
-#            cd /var/www/venus
-#            echo "${{ secrets.REGISTRY_PASSWORD}}" | docker login -u "${{ secrets.REGISTRY_USER}}" --password-stdin
-#            docker pull ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-#            ls -al
-#            docker-compose -f docker-compose.yml up -d
-
-#      - name: Stop and remove existing container if running
-#        run: |
-#          docker stop venus || true
-#          docker rm venus || true
-
-#      - name: Pull the latest image
-#        run: docker pull ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-
-#      - name: Run the new container
-#        run: docker run -d --name venus -p 80:80 -p 443:443 --restart always ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-
+            docker image prune -f
 
       - name: Completed deploy
         run: |
