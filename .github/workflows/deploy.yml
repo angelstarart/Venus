@@ -72,17 +72,9 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script : |
-            if [ ! -d "/var/www/venus" ]; then
-              git clone https://github.com/angelstarart/Venus.git /var/www/venus
-              cd /var/www/venus
-            else
-              cd /var/www/venus
-              git reset --hard
-              git pull origin main
-            fi        
-            ls -al
-            docker compose up -d --build
-            docker image prune -f
+            cd ~/venus
+            git pull
+            docker-compose -f docker-compose.yml up -d
 
 
 #            cd /var/www/venus
