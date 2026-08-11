@@ -19,8 +19,22 @@ jobs:
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD}}
 
-      - name: Build and push Docker image
-        run: 
-          cd client && make all TAG=${{ github.run_number }}
-          
-          cd ../server && make all TAG=${{ github.run_number }}
+      - name: Confirm secrets
+        run: |
+          echo "${{ secrets.REGISTRY_USER }}"
+
+      - name: Build, tag, and push image to Docker Hub
+        uses: docker/build-push-action@v7.3.0
+        with:
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+            ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
+          cache-from: type=registry,ref=${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:buildcache,mode=max
+
+      - name: image output
+        run: |
+          echo "Image: ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest"
+          echo "SHA: ${{ github.sha }}"
