@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - main
+
+env:
+  REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+  IMAGE_TAG: ${{ github.sha }}
+  DOCKER_IMAGE_NAME: venus
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       
 jobs:
   docker_build_push:
