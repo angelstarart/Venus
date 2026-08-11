@@ -22,7 +22,7 @@ services:
 
   web:
     container_name: node
-#    platform: linux/amd64
+    platform: linux/amd64
     build:
       context: .
       dockerfile: Dockerfile
@@ -58,7 +58,7 @@ services:
   db:
     container_name: mongodb
     image: mongo:latest
-    # platform: linux/arm64 # Optional
+    platform: linux/arm64 # Optional
     restart: always
     env_file: ./.env
     environment:
