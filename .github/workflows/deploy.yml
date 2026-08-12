@@ -67,8 +67,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script : |
             cd ~/venus
-            ls -al
             git pull origin main
+            ls -al
+            docker-compose -f docker-compose.yml down
             docker-compose -f docker-compose.yml up -d
             docker image prune -f
 
