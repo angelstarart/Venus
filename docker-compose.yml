@@ -22,7 +22,7 @@ services:
 
   web:
     container_name: node
-    platform: linux/arm64
+    platform: linux/amd64
     build:
       context: .
       dockerfile: Dockerfile
