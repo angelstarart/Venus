@@ -53,6 +53,7 @@ RUN dnf -y update \
 USER linuxbrew
 RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
+USER root
 ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}"
 RUN git config --global --add safe.directory /home/linuxbrew/.linuxbrew/Homebrew \
     && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" \
@@ -63,10 +64,10 @@ WORKDIR /usr/src/app
 COPY package.json .
 COPY ./packages/client/package.json packages/client/
 COPY ./packages/server/package.json packages/server/
-#RUN yarn install
-#COPY . .
+RUN yarn install
+COPY . .
 
 EXPOSE 80
 EXPOSE 443
 
-CMD ["yarn", "install"]
+CMD ["yarn", "server"]
