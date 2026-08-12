@@ -62,15 +62,11 @@ RUN brew list
 RUN yarn -h
 
 WORKDIR /usr/src/app
-COPY . .
-#COPY ./packages/client/package.json packages/client/
-#COPY ./packages/server/package.json packages/server/
+COPY --chown=linuxbrew:linuxbrew . .
+RUN yarn install
 RUN ls -al
-
-#RUN yarn install
-#COPY . .
 
 EXPOSE 80
 EXPOSE 443
 
-CMD ["yarn", "install"]
+CMD ["yarn", "server"]
