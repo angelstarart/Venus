@@ -58,15 +58,19 @@ RUN git config --global --add safe.directory /home/linuxbrew/.linuxbrew/Homebrew
     && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" \
     && brew update \
     && brew install nvm node yarn pyenv certbot
+RUN brew list
+RUN yarn -h
 
 WORKDIR /usr/src/app
 COPY package.json .
 COPY ./packages/client/package.json packages/client/
 COPY ./packages/server/package.json packages/server/
-RUN yarn install
-COPY . .
+
+
+#RUN yarn install
+#COPY . .
 
 EXPOSE 80
 EXPOSE 443
 
-CMD ["yarn", "server"]
+CMD ["yarn", "install"]
