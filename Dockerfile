@@ -53,7 +53,6 @@ RUN dnf -y update \
 USER linuxbrew
 RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-USER root
 ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}"
 RUN git config --global --add safe.directory /home/linuxbrew/.linuxbrew/Homebrew \
     && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" \
