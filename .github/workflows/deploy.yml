@@ -59,6 +59,9 @@ jobs:
     needs: build-and-push
 
     steps:
+      - name: Confirm secrets
+        run: |
+         echo "secrets: ${{ secrets.EC2_HOST }} ${{ secrets.EC2_USER }} ${{ secrets.SSH_PRIVATE_KEY }}"
       - name: Deploy on EC2 via SSH
         uses: appleboy/ssh-action@v1.2.5
         with:
@@ -69,8 +72,8 @@ jobs:
             cd ~/venus
             git pull origin main
             ls -al
-            docker-compose down
-            docker-compose up -d
+            docker-compose -f docker-compose.yml down
+            docker-compose -f docker-compose.yml up -d
             docker image prune -f
 
       - name: Completed deploy
