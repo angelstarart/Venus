@@ -1,5 +1,5 @@
 import express from 'express';
-import type {Request, Response, RequestHandler} from "express";
+import type {Request, Response} from "express";
 import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
@@ -36,8 +36,8 @@ interface MyContext {
   res: Response;
 }
 
-const { PORT, NODE_ENV, USER, PASS, DB_PORT, TYPE } = process.env;
-console.log(PORT, NODE_ENV, USER, PASS, DB_PORT, TYPE, 36);
+const { PORT, NODE_ENV, USER, PASS, DB_PORT } = process.env;
+console.log(PORT, NODE_ENV, USER, PASS, DB_PORT, 40);
 const app = express();
 
 const corsOptions = {
