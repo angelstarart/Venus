@@ -154,8 +154,6 @@ app.get('/{*splat}', (req: Request, res: Response) => {
       console.log(true)
       const filename = path.join(compiler.outputPath, 'index.html');
       compiler.outputFileSystem?.readFile(filename, (err, result) => {
-        console.error(err, 148)
-        console.log(result, 149)
         res.set('content-type', 'text/html');
         res.send(result);
         return;
