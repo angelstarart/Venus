@@ -24,7 +24,7 @@ COPY --chown=linuxbrew:linuxbrew . .
 RUN yarn install
 RUN ls -al
 
-EXPOSE 80
+EXPOSE 3000
 EXPOSE 443
 
 CMD ["yarn", "server"]
