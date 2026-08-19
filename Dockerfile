@@ -18,7 +18,6 @@ RUN git config --global --add safe.directory /home/linuxbrew/.linuxbrew/Homebrew
     && brew update \
     && brew install nvm node yarn pyenv certbot
 RUN brew list
-RUN yarn -h
 
 WORKDIR /home/ec2-user/venus
 COPY --chown=linuxbrew:linuxbrew . .
