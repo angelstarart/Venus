@@ -69,8 +69,9 @@ jobs:
             cd ~/venus
             git pull origin main
             ls -al
-            docker-compose -f docker-compose.yml down
-            docker-compose -f docker-compose.yml up -d
+            docker-compose down
+            docker-compose up -d
+            docker logs node
             docker image prune -f
 
       - name: Completed deploy

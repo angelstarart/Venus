@@ -5,14 +5,14 @@ import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 // import mongoose from 'mongoose';
 import http from 'http';
-import https from 'https';
+// import https from 'https';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 // import session from 'express-session';
 // import MongoStore from 'connect-mongo';
 import path from 'path';
-import fs from 'fs';
+// import fs from 'fs';
 import logger from 'morgan';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@as-integrations/express5';
@@ -43,9 +43,7 @@ const app = express();
 const corsOptions = {
   origin: [
     'https://angelstar.art',
-    'https://studio.apollographql.com',
-    // 'http://localhost:3000',
-    // 'http://127.0.0.1:3000',
+    'https://studio.apollographql.com'
   ],
   credentials: true,
 };
@@ -170,18 +168,18 @@ if (NODE_ENV === 'production') {
   void new Promise<void>((resolve) => httpServer.listen(80, resolve));
   console.log('HTTP Server running on port 80');
 
-  try {
-    const credentials = {
-      key: fs.readFileSync("/etc/letsencrypt/live/angelstar.art/privkey.pem"),
-      cert: fs.readFileSync("/etc/letsencrypt/live/angelstar.art/fullchain.pem"),
-      ca: fs.readFileSync("/etc/letsencrypt/live/angelstar.art/chain.pem"),
-    };
-    const httpsServer = https.createServer(credentials, app);
-    await new Promise<void>((resolve) => httpsServer.listen(443, resolve));
-    console.log('HTTPS Server running on port 443');
-  } catch (err) {
-    console.warn('SSL certificates not found — running HTTP only on port 80. Run Certbot to enable HTTPS, then restart the container.', err);
-  }
+  // try {
+  //   const credentials = {
+  //     key: fs.readFileSync("/etc/letsencrypt/live/angelstar.art/privkey.pem"),
+  //     cert: fs.readFileSync("/etc/letsencrypt/live/angelstar.art/fullchain.pem"),
+  //     ca: fs.readFileSync("/etc/letsencrypt/live/angelstar.art/chain.pem"),
+  //   };
+  //   const httpsServer = https.createServer(credentials, app);
+  //   await new Promise<void>((resolve) => httpsServer.listen(443, resolve));
+  //   console.log('HTTPS Server running on port 443');
+  // } catch (err) {
+  //   console.warn('SSL certificates not found — running HTTP only on port 80. Run Certbot to enable HTTPS, then restart the container.', err);
+  // }
 } else if (NODE_ENV === 'development') {
   await new Promise<void>((resolve) => httpServer.listen(3000, resolve));
   console.log('Server running on port 3000');
