@@ -22,10 +22,10 @@ RUN brew list
 WORKDIR /home/ec2-user/venus
 COPY --chown=linuxbrew:linuxbrew . .
 RUN yarn install
-RUN yarn build
 RUN ls -al
 
 EXPOSE 3000
 EXPOSE 443
 
+CMD ["yarn", "build"]
 CMD ["yarn", "server"]
