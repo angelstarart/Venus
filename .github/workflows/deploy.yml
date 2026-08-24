@@ -71,7 +71,6 @@ jobs:
             ls -al
             docker-compose down
             docker-compose up -d
-            docker logs node
             docker image prune -f
 
       - name: Completed deploy
