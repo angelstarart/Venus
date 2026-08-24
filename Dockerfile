@@ -20,7 +20,7 @@ RUN git config --global --add safe.directory /home/linuxbrew/.linuxbrew/Homebrew
 RUN brew list
 
 WORKDIR /home/ec2-user/venus
-COPY --chown=ec2-user:ex2-user . .
+COPY --chown=linuxbrew:linuxbrew . .
 RUN yarn install
 RUN yarn build
 RUN ls -al
