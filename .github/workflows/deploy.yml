@@ -62,9 +62,9 @@ jobs:
       - name: Deploy on EC2 via SSH
         uses: appleboy/ssh-action@v1.2.5
         with:
-          host: ${{ secrets.EC2_HOST }}
+          host: ${{ secrets.PUBLIC_IP }}
           username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ secrets.PRIVATE_KEY }}
           script : |
             cd ~/venus
             git pull origin main
