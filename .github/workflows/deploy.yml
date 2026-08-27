@@ -6,7 +6,6 @@ on:
       - main
 
 env:
-  REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
   IMAGE_TAG: ${{ github.sha }}
   DOCKER_IMAGE_NAME: venus
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -67,8 +66,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script : |
             cd ~/venus
-            git pull origin main
-            ls -al
+            docker pull ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
             docker-compose down
             docker-compose up -d
             docker image prune -f
