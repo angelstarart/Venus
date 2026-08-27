@@ -25,9 +25,10 @@ COPY ./packages/server/package.json packages/server/
 RUN npm install --legacy-peer-deps
 
 COPY . .
-RUN npm run build
+RUN ls -al
 
 EXPOSE 80
 EXPOSE 443
 
+CMD ["npm", "run", "build"]
 CMD ["npm", "run", "server"]
