@@ -1,7 +1,7 @@
 services:
   web:
     container_name: node
-    platform: linux/amd64
+#    platform: linux/amd64
     build:
       context: .
       dockerfile: Dockerfile
@@ -13,7 +13,7 @@ services:
     restart: always
     env_file: ./.env
     ports:
-      - "80:3000"
+      - "80:80"
       - "443:443"
     volumes:
       - ./packages:/home/ec2-user/venus/packages
