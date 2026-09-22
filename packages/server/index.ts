@@ -1,184 +1,377 @@
-import express from 'express';
-import type {Request, Response} from "express";
-import webpack from 'webpack';
-import webpackDevMiddleware from 'webpack-dev-middleware';
-import webpackHotMiddleware from 'webpack-hot-middleware';
-// import mongoose from 'mongoose';
-import http from 'http';
-// import https from 'https';
-import cors from 'cors';
-import bodyParser from 'body-parser';
-import cookieParser from 'cookie-parser';
-// import session from 'express-session';
-// import MongoStore from 'connect-mongo';
-import path from 'path';
-// import fs from 'fs';
-import logger from 'morgan';
-import { ApolloServer } from '@apollo/server';
-import { expressMiddleware } from '@as-integrations/express5';
-import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
-import dotenv from 'dotenv';
+import express from "express";
+import type { Request, Response, RequestHandler } from "express";
+import mongoose from "mongoose";
+import http from "http";
+import https from "https";
+import cors from "cors";
+import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
+import session from "express-session";
+import MongoStore from "connect-mongo";
+import path from "path";
+import fs from "fs";
+import logger from "morgan";
+import { ApolloServer } from "@apollo/server";
+import { expressMiddleware } from "@as-integrations/express5";
+import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+import dotenv from "dotenv";
 
-import {devConfig} from 'client/config/webpack.dev';
-import { typeDefs } from './graphql/schema';
-import { resolvers } from './graphql/resolvers';
-import {well} from './routes/well-known';
-// import {IUser} from "./models/user";
+import { typeDefs } from "./graphql/schema";
+import { resolvers } from "./graphql/resolvers";
+import { well } from "./routes/well-known";
 
-// interface context {
-//   getUser: {input: { email: string}}
-// }
-
-dotenv.config({ path: '../../.env' });
+dotenv.config();
 
 interface MyContext {
   req: Request;
   res: Response;
 }
 
-const { PORT, NODE_ENV, USER, PASS, DB_PORT } = process.env;
-console.log(PORT, NODE_ENV, USER, PASS, DB_PORT, 40);
+const {
+  PORT = "443",
+  NODE_ENV,
+  USER,
+  PASS,
+  DB_PORT = "27017",
+  DB_HOST = "mongodb",
+  SESSION_SECRET,
+} = process.env;
+
+/*
+ * This server is intentionally production-only.
+ *
+ * Development Webpack / HMR has been removed from this file.
+ * The client is expected to be pre-built into:
+ *
+ *   packages/client/destination
+ */
+if (NODE_ENV !== "production") {
+  console.error(
+    `Invalid NODE_ENV: "${NODE_ENV}". ` +
+      "packages/server/index.ts is configured to run only in production.",
+  );
+
+  process.exit(1);
+}
+
+if (!USER || !PASS) {
+  throw new Error("USER and PASS environment variables are required.");
+}
+
+if (!SESSION_SECRET) {
+  throw new Error("SESSION_SECRET environment variable is required.");
+}
+
+const HTTPS_PORT = Number(PORT) || 443;
+const HTTP_PORT = 80;
+
 const app = express();
 
+/*
+ * CORS
+ */
 const corsOptions = {
-  origin: [
-    'https://angelstar.art',
-    'https://studio.apollographql.com'
-  ],
+  origin: ["https://angelstar.art", "https://studio.apollographql.com"],
   credentials: true,
 };
 
-app.use(logger('combined'));
+/*
+ * General middleware
+ */
+app.set("trust proxy", 1);
+
+app.use(logger("combined"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors(corsOptions), bodyParser.json());
-app.use('/.well-known/acme-challenge/', well);
 
-// let ip: string;
-// if (TYPE === 'virtual') {
-//   ip = 'mongodb';
-// } else {
-//   ip = '127.0.0.1';
-// }
+/*
+ * Certbot ACME challenge
+ *
+ * This must remain available over HTTP (port 80) so that
+ * Let's Encrypt can validate the domain.
+ */
+app.use("/.well-known/acme-challenge/", well);
 
-// const url = `mongodb://${USER}:${PASS}@${ip}:${DB_PORT}/${USER}`;
-// console.log(url, 64)
-//
-// await mongoose
-//   .connect(url)
-//   .then(() => console.log('mongoose connection successful'))
-//   .catch((err: object) => console.error('mongoose', err));
-//
-// app.use(
-//   session({
-//     name: "session",
-//     secret: "secret",
-//     resave: false,
-//     saveUninitialized: false,
-//     proxy: true,
-//     store: MongoStore.create({
-//       mongoUrl: url,
-//       ttl: 14 * 24 * 60 * 60 // = 14 days. Default
-//     }),
-//     cookie: {
-//       secure: NODE_ENV !== "development",
-//       path: "/",
-//       sameSite: "strict",
-//       httpOnly: true,
-//       maxAge: 1000 * 60 * 60 * 24 * 365 // 1 year
-//     }
-//   }) as unknown as RequestHandler
-// );
+/*
+ * MongoDB
+ *
+ * In Docker Compose, "mongodb" is the service/container hostname.
+ * Do not use 127.0.0.1 here because MongoDB is running in a
+ * separate container.
+ */
+const encodedUser = encodeURIComponent(USER);
+const encodedPass = encodeURIComponent(PASS);
 
-const config =  devConfig as webpack.Configuration;
-const compiler = webpack(config);
+const mongoUrl =
+  `mongodb://${encodedUser}:${encodedPass}` +
+  `@${DB_HOST}:${DB_PORT}/${encodeURIComponent(USER)}`;
 
+console.log({
+  NODE_ENV,
+  HTTPS_PORT,
+  DB_HOST,
+  DB_PORT,
+});
+
+/*
+ * MongoDB connection
+ */
+try {
+  await mongoose.connect(mongoUrl);
+  console.log("MongoDB connection successful");
+} catch (err) {
+  console.error("MongoDB connection failed:", err);
+  process.exit(1);
+}
+
+/*
+ * Session
+ */
 app.use(
-  webpackDevMiddleware(compiler, {
-    serverSideRender: true,
-    publicPath: config.output?.publicPath,
-  }),
+  session({
+    name: "session",
+    secret: SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    proxy: true,
+
+    store: MongoStore.create({
+      mongoUrl,
+      ttl: 14 * 24 * 60 * 60,
+    }),
+
+    cookie: {
+      secure: true,
+      httpOnly: true,
+      path: "/",
+      sameSite: "strict",
+      maxAge: 1000 * 60 * 60 * 24 * 365,
+    },
+  }) as unknown as RequestHandler,
 );
 
-app.use(
-  webpackHotMiddleware(compiler, {
-    log: false,
-    path: '/__webpack_hmr',
-    heartbeat: 10 * 1000,
-  }),
-);
+/*
+ * Production client
+ *
+ * Webpack is NOT run here.
+ *
+ * The client is built during the Docker image build and copied
+ * into packages/client/destination.
+ */
+const clientDist = path.resolve(process.cwd(), "packages/client/destination");
 
-const httpServer = http.createServer(app);
+if (!fs.existsSync(clientDist)) {
+  throw new Error(`Production client directory does not exist: ${clientDist}`);
+}
 
+const indexHtml = path.join(clientDist, "index.html");
+
+if (!fs.existsSync(indexHtml)) {
+  throw new Error(`Production client index.html does not exist: ${indexHtml}`);
+}
+
+app.use(express.static(clientDist));
+
+/*
+ * Health check
+ */
+app.get("/healthz", (_req: Request, res: Response) => {
+  res.status(200).json({
+    status: "ok",
+    environment: "production",
+  });
+});
+
+/*
+ * SSL certificates generated by Certbot.
+ *
+ * These files are normally provided through the Docker volume:
+ *
+ *   /etc/letsencrypt
+ */
+const certificatePaths = {
+  key: "/etc/letsencrypt/live/angelstar.art/privkey.pem",
+  cert: "/etc/letsencrypt/live/angelstar.art/fullchain.pem",
+  ca: "/etc/letsencrypt/live/angelstar.art/chain.pem",
+};
+
+for (const [name, certificatePath] of Object.entries(certificatePaths)) {
+  if (!fs.existsSync(certificatePath)) {
+    throw new Error(
+      `Required SSL certificate file is missing (${name}): ${certificatePath}`,
+    );
+  }
+}
+
+const sslCredentials: https.ServerOptions = {
+  key: fs.readFileSync(certificatePaths.key),
+  cert: fs.readFileSync(certificatePaths.cert),
+  ca: fs.readFileSync(certificatePaths.ca),
+};
+
+/*
+ * HTTPS server
+ *
+ * This is the primary production server.
+ */
+const httpsServer = https.createServer(sslCredentials, app);
+
+/*
+ * Apollo GraphQL
+ *
+ * Apollo's drain plugin is attached to the HTTPS server so that
+ * graceful shutdown works correctly.
+ */
 const apolloServer = new ApolloServer<MyContext>({
   typeDefs,
   resolvers,
-  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+  plugins: [
+    ApolloServerPluginDrainHttpServer({
+      httpServer: httpsServer,
+    }),
+  ],
 });
 
 await apolloServer.start();
 
 app.use(
-  '/graphql',
+  "/graphql",
   expressMiddleware(apolloServer, {
     context: async ({ req, res }): Promise<MyContext> => {
-      // Add a redundant await to satisfy the linter
-      await Promise.resolve();
       return {
-        req, res
+        req,
+        res,
       };
     },
   }),
 );
 
-app.get('/{*splat}', (req: Request, res: Response) => {
-  console.log(req.protocol, 131);
-  console.log(req.hostname, 133);
-  console.log(req.get('host'), 134);
-  console.log(req.originalUrl, 135);
-  console.log(req.method, 136)
-  console.log(req.body, 137)
-  console.log(req.originalUrl.includes('cgi-bin'), 138)
-  console.log(req.originalUrl.includes('.env'), 139)
-  console.log(req.originalUrl.includes('php'), 140)
-  console.log(req.originalUrl.includes('wget'), 141)
-  console.log(req.originalUrl.includes('var'), 153)
+/*
+ * SPA fallback
+ *
+ * Any route that was not handled by the API/static files is sent
+ * to the React application's index.html.
+ *
+ * Security-sensitive probing paths are not served by the SPA.
+ */
+app.get("/{*splat}", (req: Request, res: Response) => {
+  const requestedUrl = req.originalUrl.toLowerCase();
 
-  if (req.method !== 'HEAD') {
-    if (!req.originalUrl.includes('cgi-bin') &&
-      !req.originalUrl.includes('.env') &&
-      !req.originalUrl.includes('php') &&
-      !req.originalUrl.includes('wget') &&
-      !req.originalUrl.includes('var')) {
-      console.log(true)
-      const filename = path.join(compiler.outputPath, 'index.html');
-      compiler.outputFileSystem?.readFile(filename, (err, result) => {
-        res.set('content-type', 'text/html');
-        res.send(result);
-        return;
-      });
-    }
+  const blockedPatterns = ["cgi-bin", ".env", ".git", "php", "wget", "/var/"];
+
+  if (blockedPatterns.some((pattern) => requestedUrl.includes(pattern))) {
+    res.status(404).end();
+    return;
   }
+
+  res.sendFile(indexHtml);
 });
 
-if (NODE_ENV === 'production') {
-  void new Promise<void>((resolve) => httpServer.listen(80, resolve));
-  console.log('HTTP Server running on port 80');
+/*
+ * HTTP server
+ *
+ * Port 80 is retained for:
+ *
+ *   1. Let's Encrypt / Certbot ACME challenges
+ *   2. Redirecting normal HTTP traffic to HTTPS
+ *
+ * The actual application runs on HTTPS port 443.
+ */
+const httpServer = http.createServer((req, res) => {
+  const requestUrl = req.url || "/";
 
-  // try {
-  //   const credentials = {
-  //     key: fs.readFileSync("/etc/letsencrypt/live/angelstar.art/privkey.pem"),
-  //     cert: fs.readFileSync("/etc/letsencrypt/live/angelstar.art/fullchain.pem"),
-  //     ca: fs.readFileSync("/etc/letsencrypt/live/angelstar.art/chain.pem"),
-  //   };
-  //   const httpsServer = https.createServer(credentials, app);
-  //   await new Promise<void>((resolve) => httpsServer.listen(443, resolve));
-  //   console.log('HTTPS Server running on port 443');
-  // } catch (err) {
-  //   console.warn('SSL certificates not found — running HTTP only on port 80. Run Certbot to enable HTTPS, then restart the container.', err);
-  // }
-} else if (NODE_ENV === 'development') {
-  await new Promise<void>((resolve) => httpServer.listen(3000, resolve));
-  console.log('Server running on port 3000');
-}
+  /*
+   * Let Certbot's ACME challenge be handled by Express.
+   */
+  if (requestUrl.startsWith("/.well-known/acme-challenge/")) {
+    app(req, res);
+    return;
+  }
+
+  /*
+   * Redirect everything else to HTTPS.
+   */
+  const host = req.headers.host?.split(":")[0];
+
+  if (!host) {
+    res.writeHead(400);
+    res.end("Bad Request");
+    return;
+  }
+
+  const redirectUrl = `https://${host}${requestUrl}`;
+
+  res.writeHead(301, {
+    Location: redirectUrl,
+  });
+
+  res.end();
+});
+
+/*
+ * Start HTTPS
+ */
+await new Promise<void>((resolve, reject) => {
+  httpsServer.once("error", reject);
+
+  httpsServer.listen(HTTPS_PORT, () => {
+    httpsServer.removeListener("error", reject);
+    resolve();
+  });
+});
+
+console.log(`HTTPS Server running on port ${HTTPS_PORT}`);
+
+/*
+ * Start HTTP
+ */
+await new Promise<void>((resolve, reject) => {
+  httpServer.once("error", reject);
+
+  httpServer.listen(HTTP_PORT, () => {
+    httpServer.removeListener("error", reject);
+    resolve();
+  });
+});
+
+console.log(
+  `HTTP Server running on port ${HTTP_PORT} ` +
+    "(ACME challenge + HTTPS redirect)",
+);
+
+/*
+ * Graceful shutdown
+ */
+const shutdown = async (signal: string) => {
+  console.log(`${signal} received. Shutting down...`);
+
+  try {
+    await apolloServer.stop();
+
+    await mongoose.connection.close();
+
+    await new Promise<void>((resolve) => {
+      httpsServer.close(() => resolve());
+    });
+
+    await new Promise<void>((resolve) => {
+      httpServer.close(() => resolve());
+    });
+
+    console.log("Shutdown complete");
+    process.exit(0);
+  } catch (err) {
+    console.error("Shutdown error:", err);
+    process.exit(1);
+  }
+};
+
+process.on("SIGTERM", () => {
+  void shutdown("SIGTERM");
+});
+
+process.on("SIGINT", () => {
+  void shutdown("SIGINT");
+});

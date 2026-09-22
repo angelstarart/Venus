@@ -1,22 +1,14 @@
 services:
   web:
     container_name: node
-#    platform: linux/amd64
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: web
-      args:
-        user: $USER
-        pass: $PASS
-    privileged: true
+    image: ${REGISTRY_USER}/venus:${IMAGE_TAG:-latest}
+#    image: angelstarart/venus:latest
     restart: unless-stopped
     env_file: ./.env
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./packages:/home/ec2-user/venus/packages
       - certbot-www:/var/www/certbot
       - certbot-conf:/etc/letsencrypt
     depends_on:
@@ -24,6 +16,8 @@ services:
       - certbot
     networks:
       - web-db
+    mem_limit: 450m
+    cpus: "1.0"
 
   certbot:
     container_name: certbot
@@ -33,10 +27,12 @@ services:
       - certbot-www:/var/www/certbot
       - certbot-conf:/etc/letsencrypt
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    mem_limit: 64m
+    cpus: "0.25"
 
   db:
     container_name: mongodb
-    image: mongo:latest
+    image: mongo:8.3.11
     restart: unless-stopped
     env_file: ./.env
     environment:
@@ -48,11 +44,14 @@ services:
     expose:
       - 27017
     volumes:
-       - mongodb:/data/db
+      - mongodb:/data/db
 #       - ./init-mongodb:/docker-entrypoint-initdb.d
-    command: [--auth]
+    command:
+      - --auth
     networks:
       - web-db
+    mem_limit: 256m
+    cpus: "0.75"
 
 volumes:
   mongodb:
