@@ -53,5 +53,6 @@ COPY --from=builder /app/packages/client/destination \
 COPY packages/server ./packages/server
 
 EXPOSE 80
+EXPOSE 443
 
 CMD ["yarn", "server"]
