@@ -66,10 +66,10 @@ jobs:
           script: |
             set -e
             cd ~/venus
-#            export DOCKERHUB_USERNAME="${{ secrets.REGISTRY_USER }}"
+            export DOCKERHUB_USERNAME="${{ secrets.REGISTRY_USER }}"
             export IMAGE_TAG="${{ github.sha }}"
 
-            echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ secrets.REGISTRY_USER }}" --password-stdin
+            echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
 
             docker compose pull web
             
