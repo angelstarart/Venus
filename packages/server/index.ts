@@ -101,20 +101,19 @@ app.use("/.well-known/acme-challenge/", well);
  * Do not use 127.0.0.1 here because MongoDB is running in a
  * separate container.
  */
-const encodedUser = encodeURIComponent(USER);
-const encodedPass = encodeURIComponent(PASS);
+// const encodedUser = encodeURIComponent(USER);
+// const encodedPass = encodeURIComponent(PASS);
 
-const mongoUrl =
-  `mongodb://${encodedUser}:${encodedPass}` +
-  `@${DB_HOST}:${DB_PORT}/${encodeURIComponent(USER)}`;
+// const mongoUrl =
+//   `mongodb://${encodedUser}:${encodedPass}` +
+//   `@${DB_HOST}:${DB_PORT}/${encodeURIComponent(USER)}`;
 
 console.log({
   NODE_ENV,
   HTTPS_PORT,
   DB_HOST,
   DB_PORT,
-  mongoUrl,
-}, 117);
+}, 116);
 
 /*
  * MongoDB connection
@@ -162,8 +161,6 @@ console.log({
  * into packages/client/destination.
  */
 const clientDist = path.resolve(process.cwd(), "/app/packages/client/destination");
-
-console.log(clientDist, 166);
 
 if (!fs.existsSync(clientDist)) {
   throw new Error(`Production client directory does not exist: ${clientDist}`);
@@ -273,41 +270,12 @@ if (
 } else {
   /*
    * HTTP server
+   *
+   * SSL certificates are not available yet.
+   * Run the application normally on port 80.
    */
-  const httpServer = http.createServer((req, res) => {
-    const requestUrl = req.url || "/";
+  const httpServer = http.createServer(app);
 
-    /*
-     * Let Certbot's ACME challenge be handled by Express.
-     */
-    if (requestUrl.startsWith("/.well-known/acme-challenge/")) {
-      app(req, res);
-      return;
-    }
-
-    /*
-     * Redirect everything else to HTTPS.
-     */
-    const host = req.headers.host?.split(":")[0];
-
-    if (!host) {
-      res.writeHead(400);
-      res.end("Bad Request");
-      return;
-    }
-
-    const redirectUrl = `https://${host}${requestUrl}`;
-
-    res.writeHead(301, {
-      Location: redirectUrl,
-    });
-
-    res.end();
-  });
-
-  /*
-   * Start HTTP
-   */
   await new Promise<void>((resolve, reject) => {
     httpServer.once("error", reject);
 
@@ -318,7 +286,7 @@ if (
   });
 
   console.log(
-    `HTTP Server running on port ${HTTP_PORT} `
+    `SSL certificates not found. HTTP Server running on port ${HTTP_PORT}`,
   );
 }
 
