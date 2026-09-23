@@ -20,7 +20,7 @@ import { typeDefs } from "./graphql/schema";
 import { resolvers } from "./graphql/resolvers";
 import { well } from "./routes/well-known";
 
-dotenv.config();
+dotenv.config({ path: "../../.env" });
 
 interface MyContext {
   req: Request;
@@ -28,12 +28,12 @@ interface MyContext {
 }
 
 const {
-  PORT = "443",
+  PORT,
   NODE_ENV,
   USER,
   PASS,
-  DB_PORT = "27017",
-  DB_HOST = "mongodb",
+  DB_PORT,
+  DB_HOST,
   SESSION_SECRET,
 } = process.env;
 
