@@ -1,10 +1,9 @@
 services:
   web:
     container_name: node
-#    image: ${REGISTRY_USER}/venus:${IMAGE_TAG:-latest}
-    image: angelstarart/venus:latest
-    restart: unless-stopped
     env_file: ./.env
+    image: ${REGISTRY_USER}/${DOCKER_IMAGE_NAME}:latest
+    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
