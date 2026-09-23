@@ -1,8 +1,8 @@
 services:
   web:
     container_name: node
-    image: ${REGISTRY_USER}/venus:${IMAGE_TAG:-latest}
-#    image: angelstarart/venus:latest
+#    image: ${REGISTRY_USER}/venus:${IMAGE_TAG:-latest}
+    image: angelstarart/venus:latest
     restart: unless-stopped
     env_file: ./.env
     ports:
