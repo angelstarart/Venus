@@ -1,13 +1,13 @@
 import express from "express";
-import type { Request, Response, RequestHandler } from "express";
+import type { Request, Response } from "express";
 import mongoose from "mongoose";
 import http from "http";
 import https from "https";
 import cors from "cors";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
-import session from "express-session";
-import MongoStore from "connect-mongo";
+// import session from "express-session";
+// import MongoStore from "connect-mongo";
 import path from "path";
 import fs from "fs";
 import logger from "morgan";
@@ -113,44 +113,45 @@ console.log({
   HTTPS_PORT,
   DB_HOST,
   DB_PORT,
-});
+  mongoUrl,
+}, 117);
 
 /*
  * MongoDB connection
  */
-try {
-  await mongoose.connect(mongoUrl);
-  console.log("MongoDB connection successful");
-} catch (err) {
-  console.error("MongoDB connection failed:", err);
-  process.exit(1);
-}
+// try {
+//   await mongoose.connect(mongoUrl);
+//   console.log("MongoDB connection successful");
+// } catch (err) {
+//   console.error("MongoDB connection failed:", err);
+//   process.exit(1);
+// }
 
 /*
  * Session
  */
-app.use(
-  session({
-    name: "session",
-    secret: SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    proxy: true,
-
-    store: MongoStore.create({
-      mongoUrl,
-      ttl: 14 * 24 * 60 * 60,
-    }),
-
-    cookie: {
-      secure: true,
-      httpOnly: true,
-      path: "/",
-      sameSite: "strict",
-      maxAge: 1000 * 60 * 60 * 24 * 365,
-    },
-  }) as unknown as RequestHandler,
-);
+// app.use(
+//   session({
+//     name: "session",
+//     secret: SESSION_SECRET,
+//     resave: false,
+//     saveUninitialized: false,
+//     proxy: true,
+//
+//     store: MongoStore.create({
+//       mongoUrl,
+//       ttl: 14 * 24 * 60 * 60,
+//     }),
+//
+//     cookie: {
+//       secure: true,
+//       httpOnly: true,
+//       path: "/",
+//       sameSite: "strict",
+//       maxAge: 1000 * 60 * 60 * 24 * 365,
+//     },
+//   }) as unknown as RequestHandler,
+// );
 
 /*
  * Production client
