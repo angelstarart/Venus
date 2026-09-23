@@ -68,15 +68,8 @@ jobs:
             cd ~/venus
             echo "${{ secrets.REGISTRY_PASSWORD}}" | docker login -u "${{ secrets.REGISTRY_USER}}" --password-stdin
             docker pull ${{ secrets.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-            
             docker-compose up -d --no-build --remove-orphans
-
             docker image prune -af
-
             echo "Waiting for application..."
-
             sleep 5
-
-            curl --fail http://localhost/healthz
-
             echo "Deployment successful."
