@@ -161,7 +161,9 @@ console.log({
  * The client is built during the Docker image build and copied
  * into packages/client/destination.
  */
-const clientDist = path.resolve(process.cwd(), "packages/client/destination");
+const clientDist = path.resolve(process.cwd(), "/app/packages/client/destination");
+
+console.log(clientDist, 166);
 
 if (!fs.existsSync(clientDist)) {
   throw new Error(`Production client directory does not exist: ${clientDist}`);
