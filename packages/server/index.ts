@@ -18,7 +18,7 @@ import dotenv from "dotenv";
 
 import { typeDefs } from "./graphql/schema";
 import { resolvers } from "./graphql/resolvers";
-import { well } from "./routes/well-known";
+// import { well } from "./routes/well-known";
 
 dotenv.config({ path: "../../.env" });
 
@@ -92,7 +92,10 @@ app.use(cors(corsOptions), bodyParser.json());
  * This must remain available over HTTP (port 80) so that
  * Let's Encrypt can validate the domain.
  */
-app.use("/.well-known/acme-challenge/", well);
+app.use(
+  "/.well-known/acme-challenge",
+  express.static("/var/www/certbot/.well-known/acme-challenge"),
+);
 
 /*
  * MongoDB
